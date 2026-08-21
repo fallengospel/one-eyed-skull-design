@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-symbiote-950 text-bone-100 font-body antialiased;
+  background-image:
+    radial-gradient(1200px 500px at 50% -10%, rgba(193, 18, 31, 0.06), transparent 60%),
+    radial-gradient(900px 600px at 85% 110%, rgba(240, 240, 234, 0.04), transparent 55%);
+}
+
+::selection {
+  background: #c1121f;
+  color: white;
+}
+
+:focus-visible {
+  outline: 2px solid #e23040;
+  outline-offset: 2px;
+}
+
+input[type="range"] {
+  accent-color: #c1121f;
+}
+
+.grain-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-rise { animation: rise 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.animate-pop { animation: pop-in 0.3s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.animate-float { animation: float-y 5s ease-in-out infinite; }
+.spinner {
+  width: 1em;
+  height: 1em;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: white;
+  animation: spin 0.7s linear infinite;
+}
+.skeleton {
+  background: linear-gradient(90deg, #16161d 25%, #20202a 50%, #16161d 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.scroll-thin::-webkit-scrollbar { height: 8px; width: 8px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: #2c2c3a; border-radius: 999px; }
+.scroll-thin::-webkit-scrollbar-track { background: transparent; }
+
+.field-input {
+  @apply w-full rounded-md border border-white/10 bg-symbiote-800 px-3 py-2 text-sm text-bone-100;
+}
+.field-input::placeholder {
+  @apply text-bone-500/50;
+}
+.field-input:focus {
+  @apply border-venom-500/70 outline-none;
+}
