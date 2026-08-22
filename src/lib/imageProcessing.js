@@ -16,7 +16,6 @@ export const FRAMES = [
 
 function drawFrame(ctx, frameId, size, pad) {
   if (frameId === 'bare') return
-
   ctx.strokeStyle = '#cfcfc6'
   ctx.lineWidth = 2
 
@@ -27,14 +26,13 @@ function drawFrame(ctx, frameId, size, pad) {
 
   if (frameId === 'vinyl') {
     const cx = (size + pad * 2) / 2
-    const cy = cx
     ctx.globalAlpha = 0.35
     ctx.lineWidth = 1.5
     ctx.beginPath()
-    ctx.arc(cx, cy, size * 0.56, 0, Math.PI * 2)
+    ctx.arc(cx, cx, size * 0.56, 0, Math.PI * 2)
     ctx.stroke()
     ctx.beginPath()
-    ctx.arc(cx, cy, size * 0.52, 0, Math.PI * 2)
+    ctx.arc(cx, cx, size * 0.52, 0, Math.PI * 2)
     ctx.stroke()
     ctx.globalAlpha = 1
   }
@@ -42,21 +40,20 @@ function drawFrame(ctx, frameId, size, pad) {
   if (frameId === 'stamp') {
     const m = pad * 0.5
     const w = size + pad * 2 - m * 2
-    const h = w
     ctx.lineWidth = 6
     ctx.globalAlpha = 0.15
-    ctx.strokeRect(m, m, w, h)
+    ctx.strokeRect(m, m, w, w)
     ctx.lineWidth = 2
     ctx.globalAlpha = 0.4
-    ctx.strokeRect(m + 6, m + 6, w - 12, h - 12)
+    ctx.strokeRect(m + 6, m + 6, w - 12, w - 12)
     ctx.globalAlpha = 1
   }
 }
 
-export function bakeCover({ img, zoom, offset, presetId, frameId, previewSize, outputSize = 900 }) {
+export function bakeCover({ img, zoom, offset, presetId, frameId, outputSize = 900 }) {
+  console.log('[Image] bakeCover:', presetId, frameId)
   const preset = PRESETS.find((p) => p.id === presetId) || PRESETS[0]
   const frame = FRAMES.find((f) => f.id === frameId) || FRAMES[0]
-
   const pad = frame.pad
   const total = outputSize + pad * 2
 
@@ -70,20 +67,16 @@ export function bakeCover({ img, zoom, offset, presetId, frameId, previewSize, o
 
   const fit = Math.min(outputSize / img.naturalWidth, outputSize / img.naturalHeight)
   const s = zoom * fit
-  const imgCx = img.naturalWidth / 2
-  const imgCy = img.naturalHeight / 2
   const halfVis = outputSize / 2 / s
-
-  let sx = imgCx - halfVis - offset.x / s
-  let sy = imgCy - halfVis - offset.y / s
-  let sw = outputSize / s
-  let sh = outputSize / s
+  let sx = img.naturalWidth / 2 - halfVis - offset.x / s
+  let sy = img.naturalHeight / 2 - halfVis - offset.y / s
+  const sw = outputSize / s
 
   sx = Math.max(0, Math.min(sx, img.naturalWidth - sw))
-  sy = Math.max(0, Math.min(sy, img.naturalHeight - sh))
+  sy = Math.max(0, Math.min(sy, img.naturalHeight - sw))
 
   ctx.filter = preset.css
-  ctx.drawImage(img, sx, sy, sw, sh, pad, pad, outputSize, outputSize)
+  ctx.drawImage(img, sx, sy, sw, sw, pad, pad, outputSize, outputSize)
   ctx.filter = 'none'
 
   if (preset.overlay) {
@@ -97,14 +90,16 @@ export function bakeCover({ img, zoom, offset, presetId, frameId, previewSize, o
 
   drawFrame(ctx, frameId, outputSize, pad)
 
-  return canvas.toDataURL('image/jpeg', 0.85)
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+  console.log('[Image] bakeCover done, size:', dataUrl.length)
+  return dataUrl
 }
 
 export function readFileAsDataURL(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(reader.result)
-    reader.onerror = reject
+    reader.onerror = (e) => { console.error('[Image] FileReader error:', e); reject(e) }
     reader.readAsDataURL(file)
   })
 }
@@ -113,7 +108,7 @@ export function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.onload = () => resolve(img)
-    img.onerror = reject
+    img.onerror = (e) => { console.error('[Image] load error:', e); reject(e) }
     img.src = src
   })
 }

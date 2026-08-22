@@ -16,13 +16,19 @@ const DEFAULT_PROFILE = {
 function read(key) {
   try {
     return JSON.parse(localStorage.getItem(key)) ?? []
-  } catch {
+  } catch (e) {
+    console.error('[Storage] read failed:', key, e)
     return []
   }
 }
 
 function write(key, data) {
-  localStorage.setItem(key, JSON.stringify(data))
+  try {
+    localStorage.setItem(key, JSON.stringify(data))
+  } catch (e) {
+    console.error('[Storage] write failed:', key, e.message)
+    throw e
+  }
 }
 
 function readObj(key) {
@@ -46,6 +52,7 @@ export async function getCover(id) {
 }
 
 export async function createCover(data) {
+  console.log('[Storage] createCover:', data.title)
   const covers = read(COVERS_KEY)
   const cover = { ...data, id: crypto.randomUUID(), createdAt: Date.now() }
   write(COVERS_KEY, [cover, ...covers])
@@ -53,6 +60,7 @@ export async function createCover(data) {
 }
 
 export async function updateCover(id, data) {
+  console.log('[Storage] updateCover:', id)
   const covers = read(COVERS_KEY)
   const idx = covers.findIndex((c) => c.id === id)
   if (idx === -1) return null
@@ -62,6 +70,7 @@ export async function updateCover(id, data) {
 }
 
 export async function deleteCover(id) {
+  console.log('[Storage] deleteCover:', id)
   write(COVERS_KEY, read(COVERS_KEY).filter((c) => c.id !== id))
 }
 
@@ -89,23 +98,21 @@ export async function getActiveProfile() {
 }
 
 export async function setActiveProfile(id) {
+  console.log('[Storage] setActiveProfile:', id)
   writeObj(ACTIVE_PROFILE_KEY, id)
 }
 
 export async function createProfile(data) {
+  console.log('[Storage] createProfile:', data.name)
   const profiles = await listProfiles()
-  const profile = {
-    ...data,
-    id: crypto.randomUUID(),
-    isDefault: false,
-    createdAt: Date.now(),
-  }
+  const profile = { ...data, id: crypto.randomUUID(), isDefault: false, createdAt: Date.now() }
   profiles.push(profile)
   write(PROFILES_KEY, profiles)
   return profile
 }
 
 export async function updateProfile(id, data) {
+  console.log('[Storage] updateProfile:', id)
   const profiles = await listProfiles()
   const idx = profiles.findIndex((p) => p.id === id)
   if (idx === -1) return null
@@ -116,6 +123,7 @@ export async function updateProfile(id, data) {
 
 export async function deleteProfile(id) {
   if (id === 'default') return false
+  console.log('[Storage] deleteProfile:', id)
   const profiles = await listProfiles()
   write(PROFILES_KEY, profiles.filter((p) => p.id !== id))
   localStorage.removeItem(COLLECTION_PREFIX + id)
@@ -137,6 +145,7 @@ export async function getCollectionItem(profileId, itemId) {
 }
 
 export async function createCollectionItem(profileId, data) {
+  console.log('[Storage] createCollectionItem:', data.title, 'profile:', profileId)
   const key = collectionKey(profileId)
   const items = read(key)
   const item = { ...data, id: crypto.randomUUID(), createdAt: Date.now() }
@@ -145,6 +154,7 @@ export async function createCollectionItem(profileId, data) {
 }
 
 export async function updateCollectionItem(profileId, itemId, data) {
+  console.log('[Storage] updateCollectionItem:', itemId)
   const key = collectionKey(profileId)
   const items = read(key)
   const idx = items.findIndex((c) => c.id === itemId)
@@ -155,6 +165,7 @@ export async function updateCollectionItem(profileId, itemId, data) {
 }
 
 export async function deleteCollectionItem(profileId, itemId) {
+  console.log('[Storage] deleteCollectionItem:', itemId)
   const key = collectionKey(profileId)
   write(key, read(key).filter((c) => c.id !== itemId))
 }

@@ -6,17 +6,27 @@ export function useGallery() {
 
   useEffect(() => {
     let live = true
-    listCovers().then((c) => { if (live) setCovers(c) })
+    listCovers()
+      .then((c) => { if (live) setCovers(c) })
+      .catch((e) => console.error('[useGallery] load error:', e))
     return () => { live = false }
   }, [])
 
   const refresh = useCallback(async () => {
-    setCovers(await listCovers())
+    try {
+      setCovers(await listCovers())
+    } catch (e) {
+      console.error('[useGallery] refresh error:', e)
+    }
   }, [])
 
   const remove = useCallback(async (id) => {
-    await deleteCover(id)
-    setCovers(await listCovers())
+    try {
+      await deleteCover(id)
+      setCovers(await listCovers())
+    } catch (e) {
+      console.error('[useGallery] remove error:', e)
+    }
   }, [])
 
   return { covers, refresh, remove }
@@ -27,17 +37,27 @@ export function useCollection() {
 
   useEffect(() => {
     let live = true
-    listCollection().then((c) => { if (live) setItems(c) })
+    listCollection()
+      .then((c) => { if (live) setItems(c) })
+      .catch((e) => console.error('[useCollection] load error:', e))
     return () => { live = false }
   }, [])
 
   const refresh = useCallback(async () => {
-    setItems(await listCollection())
+    try {
+      setItems(await listCollection())
+    } catch (e) {
+      console.error('[useCollection] refresh error:', e)
+    }
   }, [])
 
   const remove = useCallback(async (id) => {
-    await deleteCollectionItem(id)
-    setItems(await listCollection())
+    try {
+      await deleteCollectionItem(id)
+      setItems(await listCollection())
+    } catch (e) {
+      console.error('[useCollection] remove error:', e)
+    }
   }, [])
 
   return { items, refresh, remove }
