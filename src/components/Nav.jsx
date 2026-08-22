@@ -52,6 +52,23 @@ export default function Nav() {
               </>
             )}
           </NavLink>
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              `relative px-4 py-2 text-xs font-medium tracking-[0.2em] uppercase transition-colors ${
+                isActive ? 'text-bone-100' : 'text-bone-500 hover:text-bone-300'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                Profile
+                {isActive && (
+                  <span className="absolute -bottom-[22px] left-2 right-2 h-0.5 rounded-full bg-venom-500" />
+                )}
+              </>
+            )}
+          </NavLink>
         </nav>
       </div>
     </header>
