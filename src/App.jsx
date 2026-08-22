@@ -3,7 +3,6 @@ import { useEffect } from 'react'
 import Nav from './components/Nav.jsx'
 import Gallery from './pages/Gallery.jsx'
 import Forge from './pages/Forge.jsx'
-import Profile from './pages/Profile.jsx'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -22,7 +21,6 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Gallery />} />
             <Route path="/forge" element={<Forge />} />
-            <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>
       </div>

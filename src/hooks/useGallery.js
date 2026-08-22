@@ -1,44 +1,33 @@
 import { useState, useEffect, useCallback } from 'react'
-import { listCovers, deleteCover, listCollection, deleteCollectionItem } from '../lib/storage.js'
+import { listCovers, deleteCover } from '../lib/storage.js'
 
 export function useGallery() {
   const [covers, setCovers] = useState(null)
 
   useEffect(() => {
     let live = true
-    listCovers().then((c) => { if (live) setCovers(c) })
+    listCovers()
+      .then((c) => { if (live) setCovers(c) })
+      .catch((e) => console.error('[useGallery] load error:', e))
     return () => { live = false }
   }, [])
 
   const refresh = useCallback(async () => {
-    setCovers(await listCovers())
+    try {
+      setCovers(await listCovers())
+    } catch (e) {
+      console.error('[useGallery] refresh error:', e)
+    }
   }, [])
 
   const remove = useCallback(async (id) => {
-    await deleteCover(id)
-    setCovers(await listCovers())
+    try {
+      await deleteCover(id)
+      setCovers(await listCovers())
+    } catch (e) {
+      console.error('[useGallery] remove error:', e)
+    }
   }, [])
 
   return { covers, refresh, remove }
-}
-
-export function useCollection() {
-  const [items, setItems] = useState(null)
-
-  useEffect(() => {
-    let live = true
-    listCollection().then((c) => { if (live) setItems(c) })
-    return () => { live = false }
-  }, [])
-
-  const refresh = useCallback(async () => {
-    setItems(await listCollection())
-  }, [])
-
-  const remove = useCallback(async (id) => {
-    await deleteCollectionItem(id)
-    setItems(await listCollection())
-  }, [])
-
-  return { items, refresh, remove }
 }
