@@ -199,91 +199,93 @@ export default function Profile() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="relative overflow-hidden rounded-2xl border backdrop-blur-sm" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-card)' }}>
-        <div 
-          className="relative w-full overflow-hidden" 
-          style={{ backgroundColor: 'var(--bg-secondary)', aspectRatio: '3 / 1' }}
-        >
-          {coverPhoto ? (
-            <img 
-              src={coverPhoto} 
-              alt="Cover" 
-              className="absolute left-0 w-full object-cover"
-              style={{ 
-                height: '200%',
-                top: `calc(-50% + ${coverOffset}% - 25%)`,
-                pointerEvents: 'none'
-              }}
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <div className="text-center">
-                <IconUpload size={24} style={{ color: 'var(--text-muted)' }} className="mx-auto" />
-                <p className="mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>No cover photo</p>
+      <div className="flex flex-col gap-6 rounded-2xl border p-6 backdrop-blur-sm sm:flex-row sm:items-center sm:p-8" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-card)' }}>
+        <div className="group relative shrink-0">
+          <div 
+            className="relative h-36 w-36 overflow-hidden rounded-full" 
+            style={{ backgroundColor: 'var(--bg-secondary)', border: '4px solid var(--bg-card)' }}
+          >
+            {avatar ? (
+              <img 
+                src={avatar} 
+                alt="Avatar" 
+                className="absolute left-0 w-full object-cover"
+                style={{ 
+                  height: '200%',
+                  top: `calc(-50% + ${avatarOffset}% - 25%)`,
+                  pointerEvents: 'none'
+                }}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <SkullLogo size={48} style={{ opacity: 0.3 }} />
               </div>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+            )}
+          </div>
           <button 
             onClick={() => setShowSettings(true)} 
-            className="absolute right-3 top-3 rounded-full p-2 opacity-0 transition-all duration-200 hover:scale-110 group-hover:opacity-100" 
-            style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}
+            className="absolute bottom-0 right-0 rounded-full bg-theme-accent p-2 text-white opacity-0 transition-all duration-200 group-hover:opacity-100 hover:scale-110" 
             aria-label="Edit profile"
           >
             <IconPen size={14} />
           </button>
         </div>
-        
-        <div className="relative flex flex-col items-center gap-6 px-8 pb-8 sm:flex-row sm:px-10">
-          <div className="group relative -mt-14 shrink-0 sm:-mt-16">
-            <div 
-              className="relative h-28 w-28 overflow-hidden rounded-full" 
-              style={{ backgroundColor: 'var(--bg-secondary)', border: '4px solid var(--bg-card)' }}
-            >
-              {avatar ? (
-                <img 
-                  src={avatar} 
-                  alt="Avatar" 
-                  className="absolute left-0 w-full object-cover"
-                  style={{ 
-                    height: '200%',
-                    top: `calc(-50% + ${avatarOffset}% - 25%)`,
-                    pointerEvents: 'none'
-                  }}
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center">
-                  <SkullLogo size={48} style={{ opacity: 0.3 }} />
-                </div>
-              )}
-            </div>
-            <button 
-              onClick={() => setShowSettings(true)} 
-              className="absolute bottom-0 right-0 rounded-full bg-theme-accent p-2 text-white opacity-0 transition-all duration-200 group-hover:opacity-100 hover:scale-110" 
-              aria-label="Edit profile"
-            >
-              <IconPen size={14} />
-            </button>
-          </div>
 
-          <div className="flex-1 text-center sm:text-left">
-            <h1 className="font-display text-2xl tracking-wide sm:text-3xl" style={{ color: 'var(--text-primary)' }}>
-              {name || 'Your Profile'}
-            </h1>
-            {handle && (
-              <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>@{handle}</p>
-            )}
-            {bio && (
-              <p className="mt-3 text-sm leading-relaxed max-w-lg" style={{ color: 'var(--text-secondary)' }}>
-                {bio}
-              </p>
+        <div className="flex-1 text-center sm:text-left">
+          <h1 className="font-display text-2xl tracking-wide sm:text-3xl" style={{ color: 'var(--text-primary)' }}>
+            {name || 'Your Profile'}
+          </h1>
+          {handle && (
+            <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>@{handle}</p>
+          )}
+          {bio && (
+            <p className="mt-3 text-sm leading-relaxed max-w-lg" style={{ color: 'var(--text-secondary)' }}>
+              {bio}
+            </p>
+          )}
+          <button 
+            onClick={() => setShowSettings(true)} 
+            className="mt-4 rounded-full border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors hover:opacity-80" 
+            style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+          >
+            Edit Profile
+          </button>
+        </div>
+
+        <div className="group relative shrink-0 sm:ml-auto">
+          <div 
+            className="relative w-full overflow-hidden rounded-xl sm:w-80" 
+            style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', aspectRatio: '5 / 3' }}
+          >
+            {coverPhoto ? (
+              <img 
+                src={coverPhoto} 
+                alt="Cover" 
+                className="absolute left-0 w-full object-cover"
+                style={{ 
+                  height: '200%',
+                  top: `calc(-50% + ${coverOffset}% - 25%)`,
+                  pointerEvents: 'none'
+                }}
+              />
+            ) : (
+              <div 
+                className="flex h-full w-full cursor-pointer items-center justify-center"
+                onClick={() => setShowSettings(true)}
+              >
+                <div className="text-center">
+                  <IconUpload size={20} style={{ color: 'var(--text-muted)' }} className="mx-auto" />
+                  <p className="mt-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>Add cover photo</p>
+                </div>
+              </div>
             )}
             <button 
               onClick={() => setShowSettings(true)} 
-              className="mt-4 rounded-lg border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors hover:opacity-80" 
-              style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+              className="absolute right-2 top-2 rounded-full p-1.5 opacity-0 transition-all duration-200 hover:scale-110 group-hover:opacity-100" 
+              style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}
+              aria-label="Edit cover"
             >
-              Edit Profile
+              <IconPen size={12} />
             </button>
           </div>
         </div>

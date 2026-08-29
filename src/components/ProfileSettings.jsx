@@ -97,7 +97,7 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
       onClick={onClose}
     >
       <div 
-        className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-y-auto rounded-2xl shadow-2xl animate-pop" 
+        className="relative flex max-h-[90vh] w-full max-w-3xl flex-col overflow-y-auto rounded-2xl shadow-2xl animate-pop" 
         style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -113,134 +113,137 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
         </div>
 
         <div className="flex flex-col gap-6 p-6">
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Cover Photo</p>
-              <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>1500 x 500 px</span>
-            </div>
-            <div 
-              ref={coverContainerRef}
-              onPointerDown={onCoverPointerDown}
-              onPointerMove={onCoverPointerMove}
-              onPointerUp={onCoverPointerUp}
-              className="relative w-full cursor-grab overflow-hidden rounded-xl active:cursor-grabbing"
-              style={{ 
-                backgroundColor: 'var(--bg-secondary)', 
-                border: '1px solid var(--border-primary)',
-                aspectRatio: '3 / 1'
-              }}
-            >
-              {coverPhoto ? (
-                <>
-                  <img 
-                    src={coverPhoto} 
-                    alt="Cover preview" 
-                    draggable={false}
-                    className="absolute left-0 w-full select-none object-cover"
-                    style={{ 
-                      height: '200%',
-                      top: `calc(-50% + ${coverOffset}% - 25%)`,
-                      pointerEvents: 'none'
-                    }} 
-                  />
-                  <div className="absolute inset-0 border-2 border-dashed border-white/20 pointer-events-none" />
-                  <div className="absolute bottom-2 left-2 rounded-md bg-black/60 px-2 py-1 text-[10px] text-white/80 pointer-events-none">
-                    Drag to reposition
-                  </div>
-                </>
-              ) : (
-                <div 
-                  className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2"
-                  onClick={() => coverInputRef.current?.click()}
-                >
-                  <IconUpload size={24} style={{ color: 'var(--text-muted)' }} />
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Click to upload cover photo</p>
-                </div>
-              )}
-              <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleCoverUpload(e.target.files[0])} />
-            </div>
-            {coverPhoto && (
-              <div className="mt-2 flex items-center gap-2">
-                <button 
-                  onClick={() => setCoverOffset(50)} 
-                  className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] transition-colors hover:bg-theme-bg-alt"
-                  style={{ color: 'var(--text-muted)' }}
-                >
-                  <IconReset size={12} /> Reset
-                </button>
-                <button 
-                  onClick={() => { setCoverPhoto(null); setCoverOffset(50) }} 
-                  className="rounded-md px-2 py-1 text-[10px] text-venom-400 transition-colors hover:bg-venom-500/10"
-                >
-                  Remove
-                </button>
+          <div className="flex flex-col gap-6 sm:flex-row">
+            <div className="flex-1">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Profile Picture</p>
+                <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>600 x 600 px</span>
               </div>
-            )}
-          </div>
-
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Profile Picture</p>
-              <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>400 x 400 px</span>
+              <div className="flex flex-col items-center gap-4">
+                <div 
+                  ref={avatarContainerRef}
+                  onPointerDown={onAvatarPointerDown}
+                  onPointerMove={onAvatarPointerMove}
+                  onPointerUp={onAvatarPointerUp}
+                  className="relative h-36 w-36 cursor-grab overflow-hidden rounded-full active:cursor-grabbing"
+                  style={{ backgroundColor: 'var(--bg-secondary)', border: '3px solid var(--border-primary)' }}
+                >
+                  {avatar ? (
+                    <>
+                      <img 
+                        src={avatar} 
+                        alt="Avatar preview" 
+                        draggable={false}
+                        className="absolute left-0 w-full select-none object-cover"
+                        style={{ 
+                          height: '200%',
+                          top: `calc(-50% + ${avatarOffset}% - 25%)`,
+                          pointerEvents: 'none'
+                        }} 
+                      />
+                      <div className="absolute inset-0 rounded-full border-2 border-dashed border-white/20 pointer-events-none" />
+                    </>
+                  ) : (
+                    <div 
+                      className="flex h-full w-full cursor-pointer items-center justify-center"
+                      onClick={() => avatarInputRef.current?.click()}
+                    >
+                      <IconUpload size={24} style={{ color: 'var(--text-muted)' }} />
+                    </div>
+                  )}
+                  <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(e.target.files[0])} />
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Drag to reposition</p>
+                  {avatar && (
+                    <>
+                      <span style={{ color: 'var(--text-faint)' }}>·</span>
+                      <button 
+                        onClick={() => setAvatarOffset(50)} 
+                        className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] transition-colors hover:bg-theme-bg-alt"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        <IconReset size={12} /> Reset
+                      </button>
+                      <button 
+                        onClick={() => { setAvatar(null); setAvatarOffset(50) }} 
+                        className="rounded-md px-2 py-1 text-[10px] text-venom-400 transition-colors hover:bg-venom-500/10"
+                      >
+                        Remove
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="flex items-start gap-5">
+
+            <div className="flex-1">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Cover Photo</p>
+                <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>1000 x 600 px</span>
+              </div>
               <div 
-                ref={avatarContainerRef}
-                onPointerDown={onAvatarPointerDown}
-                onPointerMove={onAvatarPointerMove}
-                onPointerUp={onAvatarPointerUp}
-                className="relative h-28 w-28 shrink-0 cursor-grab overflow-hidden rounded-full active:cursor-grabbing"
-                style={{ backgroundColor: 'var(--bg-secondary)', border: '3px solid var(--border-primary)' }}
+                ref={coverContainerRef}
+                onPointerDown={onCoverPointerDown}
+                onPointerMove={onCoverPointerMove}
+                onPointerUp={onCoverPointerUp}
+                className="relative w-full cursor-grab overflow-hidden rounded-xl active:cursor-grabbing"
+                style={{ 
+                  backgroundColor: 'var(--bg-secondary)', 
+                  border: '1px solid var(--border-primary)',
+                  aspectRatio: '5 / 3'
+                }}
               >
-                {avatar ? (
+                {coverPhoto ? (
                   <>
                     <img 
-                      src={avatar} 
-                      alt="Avatar preview" 
+                      src={coverPhoto} 
+                      alt="Cover preview" 
                       draggable={false}
                       className="absolute left-0 w-full select-none object-cover"
                       style={{ 
                         height: '200%',
-                        top: `calc(-50% + ${avatarOffset}% - 25%)`,
+                        top: `calc(-50% + ${coverOffset}% - 25%)`,
                         pointerEvents: 'none'
                       }} 
                     />
-                    <div className="absolute inset-0 rounded-full border-2 border-dashed border-white/20 pointer-events-none" />
+                    <div className="absolute inset-0 border-2 border-dashed border-white/20 pointer-events-none" />
+                    <div className="absolute bottom-2 left-2 rounded-md bg-black/60 px-2 py-1 text-[10px] text-white/80 pointer-events-none">
+                      Drag to reposition
+                    </div>
                   </>
                 ) : (
                   <div 
-                    className="flex h-full w-full cursor-pointer items-center justify-center"
-                    onClick={() => avatarInputRef.current?.click()}
+                    className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2"
+                    onClick={() => coverInputRef.current?.click()}
                   >
-                    <IconUpload size={20} style={{ color: 'var(--text-muted)' }} />
+                    <IconUpload size={24} style={{ color: 'var(--text-muted)' }} />
+                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Click to upload cover photo</p>
                   </div>
                 )}
-                <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(e.target.files[0])} />
+                <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleCoverUpload(e.target.files[0])} />
               </div>
-              <div className="flex flex-col gap-2 pt-2">
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Drag to reposition within circle</p>
-                {avatar && (
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => setAvatarOffset(50)} 
-                      className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] transition-colors hover:bg-theme-bg-alt"
-                      style={{ color: 'var(--text-muted)' }}
-                    >
-                      <IconReset size={12} /> Reset
-                    </button>
-                    <button 
-                      onClick={() => { setAvatar(null); setAvatarOffset(50) }} 
-                      className="rounded-md px-2 py-1 text-[10px] text-venom-400 transition-colors hover:bg-venom-500/10"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                )}
-              </div>
+              {coverPhoto && (
+                <div className="mt-2 flex items-center gap-2">
+                  <button 
+                    onClick={() => setCoverOffset(50)} 
+                    className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] transition-colors hover:bg-theme-bg-alt"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    <IconReset size={12} /> Reset
+                  </button>
+                  <button 
+                    onClick={() => { setCoverPhoto(null); setCoverOffset(50) }} 
+                    className="rounded-md px-2 py-1 text-[10px] text-venom-400 transition-colors hover:bg-venom-500/10"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: 'var(--border-primary)' }}>
             <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Basic Info</p>
             <label className="block">
               <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-faint)' }}>
