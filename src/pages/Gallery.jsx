@@ -21,7 +21,7 @@ export default function Gallery() {
   const [activeTags, setActiveTags] = useState(new Set())
   const [lightbox, setLightbox] = useState(null)
 
-  useEffect(() => { document.title = 'The Wall — OneEyedSkullDesign' }, [])
+  useEffect(() => { document.title = 'Collection — OneEyedSkullDesign' }, [])
 
   const allTags = useMemo(() => {
     if (!covers) return []
@@ -83,10 +83,16 @@ export default function Gallery() {
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl tracking-wide text-bone-50 sm:text-4xl">
-            THE WALL
+            COLLECTION
           </h1>
-          <p className="mt-1 text-xs text-bone-500">{covers.length} cover{covers.length !== 1 && 's'} pinned</p>
+          <p className="mt-1 text-xs text-bone-500">{covers.length} cover{covers.length !== 1 && 's'}</p>
         </div>
+        <button
+          onClick={() => navigate('/forge')}
+          className="rounded-full bg-venom-500 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-venom-400"
+        >
+          + New Cover
+        </button>
       </div>
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
