@@ -5,7 +5,7 @@ import {
   listCollection, createCollectionItem, updateCollectionItem, deleteCollectionItem,
 } from '../lib/storage.js'
 import { PRESETS, FRAMES, bakeCover, readFileAsDataURL, loadImage } from '../lib/imageProcessing.js'
-import { IconUpload, IconX, IconMinus, IconPlus, IconReset, IconPen, IconTrash } from '../components/icons.jsx'
+import { IconUpload, IconX, IconMinus, IconPlus, IconReset, IconPen, IconTrash, IconEye } from '../components/icons.jsx'
 import SkullLogo from '../components/SkullLogo.jsx'
 import ProfileSettings from '../components/ProfileSettings.jsx'
 

@@ -116,7 +116,7 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
           <div>
             <div className="mb-2 flex items-center justify-between">
               <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Cover Photo</p>
-              <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>1200 x 400 px</span>
+              <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>1500 x 500 px</span>
             </div>
             <div 
               ref={coverContainerRef}
