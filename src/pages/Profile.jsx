@@ -34,6 +34,7 @@ export default function Profile() {
   const [error, setError] = useState('')
   const [dragOver, setDragOver] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
+  const [viewItem, setViewItem] = useState(null)
   const previewRef = useRef(null)
   const panning = useRef(false)
   const lastPos = useRef({ x: 0, y: 0 })
@@ -184,81 +185,202 @@ export default function Profile() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <h1 className="font-display text-2xl tracking-wide text-bone-50 sm:text-3xl">THE VAULT</h1>
-      </div>
-
-      <div className="relative rounded-xl border border-white/5 bg-symbiote-800/40 p-6 sm:p-8">
-        <div className="flex flex-col items-center gap-6 sm:flex-row">
+    <div className="mx-auto max-w-5xl">
+      <div className="relative overflow-hidden rounded-2xl border backdrop-blur-sm" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-card)' }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-theme-accent/5 to-transparent pointer-events-none" />
+        
+        <div className="relative flex flex-col items-center gap-6 p-8 sm:flex-row sm:p-10">
           <div className="group relative shrink-0">
-            <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-2 border-white/10 bg-symbiote-700 cursor-pointer" onClick={() => avatarInputRef.current?.click()} role="button" tabIndex={0}>
-              {avatar ? <img src={avatar} alt="Avatar" className="h-full w-full object-cover" /> : <SkullLogo size={48} className="opacity-30" />}
+            <div 
+              className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full cursor-pointer transition-all duration-200 group-hover:scale-105" 
+              style={{ backgroundColor: 'var(--bg-secondary)', border: '2px solid var(--border-primary)' }}
+              onClick={() => avatarInputRef.current?.click()} 
+              role="button" 
+              tabIndex={0}
+            >
+              {avatar ? (
+                <img src={avatar} alt="Avatar" className="h-full w-full object-cover" />
+              ) : (
+                <SkullLogo size={48} style={{ opacity: 0.3 }} />
+              )}
             </div>
-            <button onClick={() => avatarInputRef.current?.click()} className="absolute bottom-0 right-0 rounded-full bg-venom-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100" aria-label="Change avatar">
-              <IconPen size={12} />
+            <button 
+              onClick={() => avatarInputRef.current?.click()} 
+              className="absolute bottom-0 right-0 rounded-full bg-theme-accent p-2 text-white opacity-0 transition-all duration-200 group-hover:opacity-100 hover:scale-110" 
+              aria-label="Change avatar"
+            >
+              <IconPen size={14} />
             </button>
             <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(e.target.files[0])} />
           </div>
+
           <div className="flex-1 text-center sm:text-left">
             {editingProfile ? (
               <div className="flex flex-col gap-3">
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Display name" className="field-input text-lg font-bold" />
-                <input type="text" value={handle} onChange={(e) => setHandle(e.target.value)} placeholder="@handle" className="field-input text-sm" />
-                <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell the world about your taste..." rows={2} className="field-input resize-none text-sm" />
+                <input 
+                  type="text" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  placeholder="Display name" 
+                  className="field-input text-lg font-bold" 
+                />
+                <input 
+                  type="text" 
+                  value={handle} 
+                  onChange={(e) => setHandle(e.target.value)} 
+                  placeholder="@handle" 
+                  className="field-input text-sm" 
+                />
+                <textarea 
+                  value={bio} 
+                  onChange={(e) => setBio(e.target.value)} 
+                  placeholder="Tell the world about your taste..." 
+                  rows={2} 
+                  className="field-input resize-none text-sm" 
+                />
                 <div className="flex gap-2">
-                  <button onClick={handleSaveProfile} className="rounded-md bg-venom-500 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white hover:bg-venom-400">Save Profile</button>
-                  <button onClick={() => setEditingProfile(false)} className="rounded-md border border-white/15 px-4 py-2 text-xs text-bone-400 hover:text-bone-200">Cancel</button>
+                  <button 
+                    onClick={handleSaveProfile} 
+                    className="rounded-lg bg-theme-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
+                  >
+                    Save Profile
+                  </button>
+                  <button 
+                    onClick={() => setEditingProfile(false)} 
+                    className="rounded-lg border px-4 py-2 text-xs transition-colors hover:opacity-80" 
+                    style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
             ) : (
               <>
-                <h2 className="font-display text-2xl tracking-wide text-bone-50">{name || 'Your Profile'}</h2>
-                {handle && <p className="mt-0.5 text-sm text-bone-500">@{handle}</p>}
-                {bio && <p className="mt-2 text-sm text-bone-400">{bio}</p>}
-                <div className="mt-3">
-                  <button onClick={() => setEditingProfile(true)} className="rounded-md border border-white/15 px-4 py-2 text-xs font-medium uppercase tracking-wider text-bone-400 hover:bg-symbiote-700 hover:text-bone-200">Edit Profile</button>
-                </div>
+                <h1 className="font-display text-2xl tracking-wide sm:text-3xl" style={{ color: 'var(--text-primary)' }}>
+                  {name || 'Your Profile'}
+                </h1>
+                {handle && (
+                  <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>@{handle}</p>
+                )}
+                {bio && (
+                  <p className="mt-3 text-sm leading-relaxed max-w-lg" style={{ color: 'var(--text-secondary)' }}>
+                    {bio}
+                  </p>
+                )}
+                <button 
+                  onClick={() => setEditingProfile(true)} 
+                  className="mt-4 rounded-lg border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors hover:opacity-80" 
+                  style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+                >
+                  Edit Profile
+                </button>
               </>
             )}
           </div>
         </div>
       </div>
 
-      <div className="mt-8">
-        <div className="flex items-center justify-between border-b border-white/5">
-          <p className="pb-3 text-xs font-medium uppercase tracking-wider text-bone-500">Collection</p>
-          <button onClick={startNewUpload} className="rounded-full bg-venom-500 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white hover:bg-venom-400">Create</button>
+      <div className="mt-10">
+        <div className="flex items-center justify-between" style={{ borderBottom: '1px solid var(--border-primary)' }}>
+          <p className="pb-4 text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            Collection
+            {collection && collection.length > 0 && (
+              <span className="ml-2" style={{ color: 'var(--text-faint)' }}>({collection.length})</span>
+            )}
+          </p>
+          <button 
+            onClick={startNewUpload} 
+            className="flex items-center gap-2 rounded-lg bg-theme-accent px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
+          >
+            <IconUpload size={14} />
+            Create
+          </button>
         </div>
+
         {collection === null ? (
           <div className="grid grid-cols-2 gap-4 py-8 sm:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => <div key={i}><div className="skeleton aspect-square rounded-lg" /><div className="skeleton mt-2 h-4 w-3/4 rounded" /></div>)}
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i}>
+                <div className="skeleton aspect-square rounded-xl" />
+                <div className="skeleton mt-2 h-4 w-3/4 rounded" />
+              </div>
+            ))}
           </div>
         ) : collection.length === 0 ? (
-          <div className="flex flex-col items-center py-20 text-center">
-            <div className="animate-float mb-6 opacity-20"><SkullLogo size={80} /></div>
-            <p className="font-display text-lg text-bone-500">Nothing here yet.</p>
-            <p className="mt-2 text-sm text-bone-600">Upload your first cover for this profile.</p>
-            <button onClick={startNewUpload} className="mt-6 rounded-md bg-venom-500 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white hover:bg-venom-400">Upload Cover</button>
+          <div className="flex flex-col items-center py-24 text-center">
+            <div className="animate-float mb-6 opacity-20">
+              <SkullLogo size={80} />
+            </div>
+            <p className="font-display text-lg" style={{ color: 'var(--text-muted)' }}>Nothing here yet.</p>
+            <p className="mt-2 text-sm" style={{ color: 'var(--text-faint)' }}>
+              Upload your first cover to get started.
+            </p>
+            <button 
+              onClick={startNewUpload} 
+              className="mt-6 rounded-lg bg-theme-accent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
+            >
+              Upload Cover
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 py-6 sm:grid-cols-3 lg:grid-cols-4">
             {collection.map((item, i) => (
-              <div key={item.id} className="animate-rise group relative overflow-hidden rounded-lg border border-white/5 bg-symbiote-800/60 transition-all hover:-translate-y-1 hover:border-venom-500/40 hover:shadow-lg" style={{ animationDelay: `${i * 60}ms` }}>
-                <img src={item.imageUrl} alt={item.title} className="block w-full" />
-                <div className="absolute inset-0 flex items-end justify-between bg-gradient-to-t from-black/85 via-black/20 p-3 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button onClick={() => startEditItem(item)} className="rounded-full bg-white/10 p-2 text-bone-100 backdrop-blur-sm hover:bg-venom-500"><IconPen size={16} /></button>
-                  <button onClick={() => setConfirmDelete(item.id)} className={`rounded-full p-2 backdrop-blur-sm transition-colors ${confirmDelete === item.id ? 'bg-venom-500 text-white' : 'bg-white/10 text-bone-100 hover:bg-venom-500'}`}><IconTrash size={16} /></button>
+              <div 
+                key={item.id} 
+                className="animate-rise group relative overflow-hidden rounded-xl transition-all duration-200 hover:-translate-y-1 hover:shadow-theme-lg" 
+                style={{ 
+                  animationDelay: `${i * 60}ms`,
+                  backgroundColor: 'var(--bg-card)',
+                  border: '1px solid var(--border-primary)'
+                }}
+              >
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.title} 
+                    className="block w-full transition-transform duration-300 group-hover:scale-105" 
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/0 opacity-0 transition-all duration-200 group-hover:bg-black/40 group-hover:opacity-100">
+                    <button 
+                      onClick={() => setViewItem(item)} 
+                      className="rounded-full bg-white/90 p-2.5 text-symbiote-900 transition-transform hover:scale-110"
+                    >
+                      <IconEye size={16} />
+                    </button>
+                    <button 
+                      onClick={() => startEditItem(item)} 
+                      className="rounded-full bg-white/90 p-2.5 text-symbiote-900 transition-transform hover:scale-110"
+                    >
+                      <IconPen size={16} />
+                    </button>
+                    <button 
+                      onClick={() => setConfirmDelete(item.id)} 
+                      className={`rounded-full p-2.5 transition-all ${confirmDelete === item.id ? 'bg-venom-500 text-white' : 'bg-white/90 text-symbiote-900 hover:bg-venom-500 hover:text-white'}`}
+                    >
+                      <IconTrash size={16} />
+                    </button>
+                  </div>
                 </div>
                 <div className="p-3">
-                  <h3 className="truncate text-sm font-medium text-bone-100">{item.title}</h3>
-                  <p className="mt-0.5 truncate text-xs text-bone-500">{item.artist}</p>
+                  <h3 className="truncate text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.title}</h3>
+                  <p className="mt-0.5 truncate text-xs" style={{ color: 'var(--text-muted)' }}>{item.artist}</p>
                 </div>
                 {confirmDelete === item.id && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                  <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm" style={{ backgroundColor: 'var(--bg-card)' }}>
                     <div className="flex gap-2">
-                      <button onClick={() => handleDeleteItem(item.id)} className="rounded-md bg-venom-500 px-4 py-2 text-xs font-semibold text-white">Delete</button>
-                      <button onClick={() => setConfirmDelete(null)} className="rounded-md border border-white/15 px-4 py-2 text-xs text-bone-300">Cancel</button>
+                      <button 
+                        onClick={() => handleDeleteItem(item.id)} 
+                        className="rounded-lg bg-venom-500 px-4 py-2 text-xs font-semibold text-white"
+                      >
+                        Delete
+                      </button>
+                      <button 
+                        onClick={() => setConfirmDelete(null)} 
+                        className="rounded-lg border px-4 py-2 text-xs" 
+                        style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
                 )}
@@ -268,61 +390,227 @@ export default function Profile() {
         )}
       </div>
 
-      {showUpload && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-y-auto rounded-xl border border-white/10 bg-symbiote-900 p-6 animate-pop lg:flex-row lg:gap-6">
-            <button onClick={() => { setShowUpload(false); setEditingItem(null); resetUploadForm() }} className="absolute right-4 top-4 rounded-full bg-black/50 p-1.5 text-bone-300 hover:bg-venom-500 hover:text-white" aria-label="Close">
-              <IconX size={18} />
+      {viewItem && (
+        <div 
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 backdrop-blur-sm" 
+          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+          onClick={() => setViewItem(null)}
+        >
+          <div 
+            className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl shadow-2xl animate-pop lg:flex-row" 
+            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setViewItem(null)} 
+              className="absolute right-4 top-4 z-10 rounded-full p-2 transition-colors hover:bg-theme-bg-alt"
+              aria-label="Close"
+            >
+              <IconX size={20} style={{ color: 'var(--text-secondary)' }} />
             </button>
 
-            <div className="flex flex-1 flex-col gap-4 lg:max-w-lg">
-              <h2 className="font-display text-xl tracking-wide text-bone-50">{editingItem ? 'EDIT COVER' : 'NEW COVER'}</h2>
+            <div className="flex-shrink-0 bg-black sm:w-1/2">
+              <img src={viewItem.imageUrl} alt={viewItem.title} className="h-full w-full object-contain" />
+            </div>
+
+            <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-6">
+              <div>
+                <h2 className="font-display text-xl tracking-wide sm:text-2xl" style={{ color: 'var(--text-primary)' }}>
+                  {viewItem.title}
+                </h2>
+                <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>{viewItem.artist}</p>
+              </div>
+
+              <div className="flex flex-wrap gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
+                {viewItem.year && (
+                  <span className="rounded-full px-2.5 py-0.5" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                    {viewItem.year}
+                  </span>
+                )}
+                {viewItem.filterApplied && viewItem.filterApplied !== 'raw' && (
+                  <span className="rounded-full px-2.5 py-0.5 text-venom-400" style={{ backgroundColor: 'var(--accent-muted)' }}>
+                    {viewItem.filterApplied}
+                  </span>
+                )}
+                {viewItem.frameStyle && viewItem.frameStyle !== 'bare' && (
+                  <span className="rounded-full px-2.5 py-0.5" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                    {viewItem.frameStyle}
+                  </span>
+                )}
+              </div>
+
+              {viewItem.tags && viewItem.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {viewItem.tags.map((tag) => (
+                    <span key={tag} className="rounded-full px-2.5 py-0.5 text-xs" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {viewItem.notes && (
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{viewItem.notes}</p>
+              )}
+
+              <div className="mt-auto flex items-center gap-2 pt-4 text-xs" style={{ color: 'var(--text-faint)' }}>
+                <span>Added {new Date(viewItem.createdAt).toLocaleDateString()}</span>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => { startEditItem(viewItem); setViewItem(null) }}
+                  className="flex-1 rounded-lg px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors"
+                  style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => { setConfirmDelete(viewItem.id); setViewItem(null) }}
+                  className="flex-1 rounded-lg border px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors hover:bg-venom-500 hover:text-white hover:border-venom-500"
+                  style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showUpload && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+          <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-y-auto rounded-2xl shadow-2xl animate-pop lg:flex-row lg:gap-6" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
+            <button 
+              onClick={() => { setShowUpload(false); setEditingItem(null); resetUploadForm() }} 
+              className="absolute right-4 top-4 z-10 rounded-full p-2 transition-colors hover:bg-theme-bg-alt"
+              aria-label="Close"
+            >
+              <IconX size={20} style={{ color: 'var(--text-secondary)' }} />
+            </button>
+
+            <div className="flex flex-1 flex-col gap-4 p-6 lg:max-w-lg">
+              <h2 className="font-display text-xl tracking-wide" style={{ color: 'var(--text-primary)' }}>
+                {editingItem ? 'EDIT COVER' : 'NEW COVER'}
+              </h2>
               {!src ? (
-                <div onDragOver={(e) => { e.preventDefault(); setDragOver(true) }} onDragLeave={() => setDragOver(false)} onDrop={onDrop} onClick={() => fileInputRef.current?.click()} className={`flex aspect-square cursor-pointer flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed transition-colors ${dragOver ? 'border-venom-500 bg-venom-500/5' : 'border-white/15 hover:border-venom-500/60'}`}>
-                  <IconUpload size={48} className="text-bone-500" />
+                <div 
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true) }} 
+                  onDragLeave={() => setDragOver(false)} 
+                  onDrop={onDrop} 
+                  onClick={() => fileInputRef.current?.click()} 
+                  className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed transition-colors"
+                  style={{ 
+                    borderColor: dragOver ? 'var(--accent)' : 'var(--border-primary)',
+                    backgroundColor: dragOver ? 'var(--accent-muted)' : 'var(--bg-secondary)'
+                  }}
+                >
+                  <IconUpload size={48} style={{ color: 'var(--text-muted)' }} />
                   <div className="text-center">
-                    <p className="text-sm font-medium text-bone-300">Drop artwork here</p>
-                    <p className="mt-1 text-xs text-bone-500">PNG / JPG / WEBP</p>
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Drop artwork here</p>
+                    <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>PNG / JPG / WEBP</p>
                   </div>
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFile(e.target.files[0])} />
                 </div>
               ) : (
                 <>
-                  <div ref={previewRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} className="relative aspect-square w-full cursor-grab overflow-hidden rounded-xl border border-white/10 bg-symbiote-900 active:cursor-grabbing">
-                    <img src={src} alt="Preview" draggable={false} className="absolute left-1/2 top-1/2 h-full w-full select-none object-contain" style={{ filter: cssFilter, transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px)) scale(${zoom})` }} />
-                    <button onClick={() => { setSrc(null); setImg(null) }} className="absolute right-3 top-3 rounded-full bg-black/60 p-1.5 text-bone-300 hover:bg-venom-500 hover:text-white"><IconX size={16} /></button>
+                  <div 
+                    ref={previewRef} 
+                    onPointerDown={onPointerDown} 
+                    onPointerMove={onPointerMove} 
+                    onPointerUp={onPointerUp} 
+                    className="relative aspect-square w-full cursor-grab overflow-hidden rounded-xl active:cursor-grabbing"
+                    style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-primary)' }}
+                  >
+                    <img 
+                      src={src} 
+                      alt="Preview" 
+                      draggable={false} 
+                      className="absolute left-1/2 top-1/2 h-full w-full select-none object-contain" 
+                      style={{ filter: cssFilter, transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px)) scale(${zoom})` }} 
+                    />
+                    <button 
+                      onClick={() => { setSrc(null); setImg(null) }} 
+                      className="absolute right-3 top-3 rounded-full p-1.5 transition-colors hover:bg-venom-500 hover:text-white"
+                      style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}
+                    >
+                      <IconX size={16} />
+                    </button>
                   </div>
-                  <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-symbiote-800/60 p-4">
-                    <p className="text-xs font-medium uppercase tracking-wider text-bone-500">Presets</p>
+                  <div className="flex flex-col gap-3 rounded-xl p-4" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-primary)' }}>
+                    <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Presets</p>
                     <div className="flex flex-wrap gap-2">
                       {PRESETS.map((p) => (
-                        <button key={p.id} onClick={() => setPreset(p.id)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${preset === p.id ? 'border-venom-500 bg-venom-500 text-white' : 'border-white/15 text-bone-400 hover:text-bone-200'}`}>{p.name}</button>
+                        <button 
+                          key={p.id} 
+                          onClick={() => setPreset(p.id)} 
+                          className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${preset === p.id ? 'bg-theme-accent border-theme-accent text-white' : 'hover:text-theme-text'}`}
+                          style={preset !== p.id ? { borderColor: 'var(--border-primary)', color: 'var(--text-muted)' } : {}}
+                        >
+                          {p.name}
+                        </button>
                       ))}
                     </div>
-                    <p className="mt-1 text-xs font-medium uppercase tracking-wider text-bone-500">Frames</p>
+                    <p className="mt-1 text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Frames</p>
                     <div className="flex flex-wrap gap-2">
                       {FRAMES.map((f) => (
-                        <button key={f.id} onClick={() => setFrame(f.id)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${frame === f.id ? 'border-venom-500 bg-venom-500 text-white' : 'border-white/15 text-bone-400 hover:text-bone-200'}`}>{f.name}</button>
+                        <button 
+                          key={f.id} 
+                          onClick={() => setFrame(f.id)} 
+                          className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${frame === f.id ? 'bg-theme-accent border-theme-accent text-white' : 'hover:text-theme-text'}`}
+                          style={frame !== f.id ? { borderColor: 'var(--border-primary)', color: 'var(--text-muted)' } : {}}
+                        >
+                          {f.name}
+                        </button>
                       ))}
                     </div>
                     <div className="flex items-center gap-3">
-                      <button onClick={() => setZoom((z) => Math.max(1, z - 0.1))} className="rounded-full border border-white/15 p-1.5 text-bone-400 hover:text-bone-200"><IconMinus size={14} /></button>
+                      <button onClick={() => setZoom((z) => Math.max(1, z - 0.1))} className="rounded-full border p-1.5 transition-colors hover:text-theme-text" style={{ borderColor: 'var(--border-primary)', color: 'var(--text-muted)' }}>
+                        <IconMinus size={14} />
+                      </button>
                       <input type="range" min="1" max="3" step="0.01" value={zoom} onChange={(e) => setZoom(Number(e.target.value))} className="flex-1" />
-                      <button onClick={() => setZoom((z) => Math.min(3, z + 0.1))} className="rounded-full border border-white/15 p-1.5 text-bone-400 hover:text-bone-200"><IconPlus size={14} /></button>
-                      <button onClick={() => { setZoom(1); setOffset({ x: 0, y: 0 }) }} className="rounded-full border border-white/15 p-1.5 text-bone-400 hover:text-bone-200"><IconReset size={14} /></button>
+                      <button onClick={() => setZoom((z) => Math.min(3, z + 0.1))} className="rounded-full border p-1.5 transition-colors hover:text-theme-text" style={{ borderColor: 'var(--border-primary)', color: 'var(--text-muted)' }}>
+                        <IconPlus size={14} />
+                      </button>
+                      <button onClick={() => { setZoom(1); setOffset({ x: 0, y: 0 }) }} className="rounded-full border p-1.5 transition-colors hover:text-theme-text" style={{ borderColor: 'var(--border-primary)', color: 'var(--text-muted)' }}>
+                        <IconReset size={14} />
+                      </button>
                     </div>
                   </div>
                 </>
               )}
             </div>
-            <div className="mt-6 flex flex-1 flex-col gap-4 lg:mt-0">
-              <label className="block"><span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-bone-500">Album Title <span className="text-venom-400">*</span></span><input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Enter album title" className="field-input" /></label>
-              <label className="block"><span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-bone-500">Artist Name <span className="text-venom-400">*</span></span><input type="text" value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="Enter artist name" className="field-input" /></label>
-              <label className="block"><span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-bone-500">Release Year</span><input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="e.g. 1986" className="field-input" /></label>
-              <label className="block"><span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-bone-500">Genre / Tags</span><input type="text" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="doom, analog, night drive" className="field-input" /></label>
-              <label className="block"><span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-bone-500">Notes</span><textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Short description or notes..." rows={2} className="field-input resize-none" /></label>
+            <div className="mt-6 flex flex-1 flex-col gap-4 p-6 lg:mt-0">
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                  Album Title <span className="text-venom-400">*</span>
+                </span>
+                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Enter album title" className="field-input" />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                  Artist Name <span className="text-venom-400">*</span>
+                </span>
+                <input type="text" value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="Enter artist name" className="field-input" />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Release Year</span>
+                <input type="number" min="1900" max="2100" value={year} onChange={(e) => setYear(e.target.value)} placeholder="e.g. 1986" className="field-input" />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Genre / Tags</span>
+                <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="doom, analog, night drive" className="field-input" />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Notes</span>
+                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Short description or notes..." rows={2} className="field-input resize-none" />
+              </label>
               {error && <p className="text-sm text-venom-400">{error}</p>}
-              <button onClick={handleSaveItem} disabled={!canSave || saving} className="flex items-center justify-center gap-2 rounded-md bg-venom-500 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white hover:bg-venom-400 disabled:cursor-not-allowed disabled:opacity-40">
+              <button 
+                onClick={handleSaveItem} 
+                disabled={!canSave || saving} 
+                className="flex items-center justify-center gap-2 rounded-lg bg-theme-accent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
+              >
                 {saving && <span className="spinner" />}
                 {saving ? 'Saving...' : editingItem ? 'Update Cover' : 'Save to Collection'}
               </button>
@@ -333,4 +621,3 @@ export default function Profile() {
     </div>
   )
 }
-

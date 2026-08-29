@@ -21,8 +21,8 @@ export default function Home() {
     <div className="min-h-screen">
       <section className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden text-center">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-venom-500/[0.04] blur-[120px]" />
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[120px]" style={{ backgroundColor: 'var(--accent-muted)' }} />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-theme-border to-transparent" />
         </div>
 
         <div className={`relative z-10 transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
@@ -30,20 +30,20 @@ export default function Home() {
             <SkullLogo size={80} className="opacity-80" />
           </div>
 
-          <h1 className="font-display text-5xl tracking-wide text-bone-50 sm:text-7xl md:text-8xl">
+          <h1 className="font-display text-5xl tracking-wide sm:text-7xl md:text-8xl" style={{ color: 'var(--text-primary)' }}>
             ONE-EYED
             <br />
             SKULL
           </h1>
 
-          <p className="mx-auto mt-6 max-w-lg text-sm leading-relaxed text-bone-500 sm:text-base">
+          <p className="mx-auto mt-6 max-w-lg text-sm leading-relaxed sm:text-base" style={{ color: 'var(--text-muted)' }}>
             A curated collection of album cover artwork. Design, customize, and showcase your visual identity through music.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               to="/vault"
-              className="group flex items-center gap-2 rounded-full bg-venom-500 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-venom-400 hover:shadow-[0_0_40px_-8px_rgba(193,18,31,0.5)]"
+              className="group flex items-center gap-2 rounded-full bg-theme-accent px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-theme-accent-hover hover:shadow-[0_0_40px_-8px_rgba(193,18,31,0.5)]"
             >
               Enter The Vault
               <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
@@ -52,14 +52,14 @@ export default function Home() {
         </div>
 
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <svg className="h-5 w-5 text-bone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+          <svg className="h-5 w-5" style={{ color: 'var(--text-muted)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
         </div>
       </section>
 
       <section className="relative py-24">
         <div className="mb-16 text-center">
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.3em] text-venom-400">What I Do</p>
-          <h2 className="font-display text-3xl tracking-wide text-bone-50 sm:text-4xl">THE CRAFT</h2>
+          <h2 className="font-display text-3xl tracking-wide sm:text-4xl" style={{ color: 'var(--text-primary)' }}>THE CRAFT</h2>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -86,9 +86,9 @@ export default function Home() {
           <div className="mb-12 flex items-end justify-between">
             <div>
               <p className="mb-3 text-xs font-medium uppercase tracking-[0.3em] text-venom-400">Recent Work</p>
-              <h2 className="font-display text-3xl tracking-wide text-bone-50 sm:text-4xl">RECENT WORK</h2>
+              <h2 className="font-display text-3xl tracking-wide sm:text-4xl" style={{ color: 'var(--text-primary)' }}>RECENT WORK</h2>
             </div>
-            <Link to="/vault" className="text-xs font-medium uppercase tracking-wider text-bone-500 transition-colors hover:text-bone-300">
+            <Link to="/vault" className="text-xs font-medium uppercase tracking-wider transition-colors hover:opacity-80" style={{ color: 'var(--text-muted)' }}>
               View All
             </Link>
           </div>
@@ -118,28 +118,28 @@ export default function Home() {
       )}
 
       <section className="relative py-24">
-        <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-symbiote-800/30 p-12 text-center sm:p-16">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-venom-500/10 blur-[80px]" />
+        <div className="relative overflow-hidden rounded-2xl p-12 text-center sm:p-16" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
+          <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full blur-[80px]" style={{ backgroundColor: 'var(--accent-muted)' }} />
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.3em] text-venom-400">Ready?</p>
-          <h2 className="font-display text-3xl tracking-wide text-bone-50 sm:text-4xl">START FORGING</h2>
-          <p className="mx-auto mt-4 max-w-md text-sm text-bone-500">
+          <h2 className="font-display text-3xl tracking-wide sm:text-4xl" style={{ color: 'var(--text-primary)' }}>START FORGING</h2>
+          <p className="mx-auto mt-4 max-w-md text-sm" style={{ color: 'var(--text-muted)' }}>
             Upload your first album cover and build your collection.
           </p>
           <Link
             to="/vault"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-venom-500 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-venom-400"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-theme-accent px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-theme-accent-hover"
           >
             Enter The Vault
           </Link>
         </div>
       </section>
 
-      <footer className="border-t border-white/5 py-12 text-center">
+      <footer className="py-12 text-center" style={{ borderTop: '1px solid var(--border-primary)' }}>
         <div className="flex items-center justify-center gap-3">
           <SkullLogo size={24} className="opacity-40" />
-          <span className="text-xs tracking-[0.2em] text-bone-600">ONE-EYED SKULL DESIGN</span>
+          <span className="text-xs tracking-[0.2em]" style={{ color: 'var(--text-faint)' }}>ONE-EYED SKULL DESIGN</span>
         </div>
-        <p className="mt-3 text-xs text-bone-600">Album cover art gallery & customization tool</p>
+        <p className="mt-3 text-xs" style={{ color: 'var(--text-faint)' }}>Album cover art gallery & customization tool</p>
       </footer>
     </div>
   )
@@ -147,12 +147,12 @@ export default function Home() {
 
 function FeatureCard({ icon, title, description }) {
   return (
-    <div className="group rounded-xl border border-white/5 bg-symbiote-800/30 p-8 transition-all hover:border-venom-500/30 hover:bg-symbiote-800/50">
+    <div className="group rounded-xl p-8 transition-all duration-200 hover:shadow-theme-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
       <div className="mb-4 text-venom-400 transition-colors group-hover:text-venom-500">
         {icon}
       </div>
-      <h3 className="mb-2 font-display text-lg tracking-wide text-bone-100">{title}</h3>
-      <p className="text-sm leading-relaxed text-bone-500">{description}</p>
+      <h3 className="mb-2 font-display text-lg tracking-wide" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{description}</p>
     </div>
   )
 }
