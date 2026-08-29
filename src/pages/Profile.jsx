@@ -16,6 +16,7 @@ export default function Profile() {
   const [handle, setHandle] = useState('')
   const [bio, setBio] = useState('')
   const [avatar, setAvatar] = useState(null)
+  const [coverPhoto, setCoverPhoto] = useState(null)
   const [collection, setCollection] = useState(null)
   const [showUpload, setShowUpload] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
@@ -40,6 +41,7 @@ export default function Profile() {
   const lastPos = useRef({ x: 0, y: 0 })
   const fileInputRef = useRef(null)
   const avatarInputRef = useRef(null)
+  const coverInputRef = useRef(null)
 
   useEffect(() => { document.title = 'The Vault — OneEyedSkullDesign' }, [])
 
@@ -69,6 +71,7 @@ export default function Profile() {
     setHandle(p.handle || '')
     setBio(p.bio || '')
     setAvatar(p.avatar || null)
+    setCoverPhoto(p.coverPhoto || null)
   }
 
   const switchProfile = async (id) => {
@@ -82,7 +85,7 @@ export default function Profile() {
   }
 
   const handleSaveProfile = async () => {
-    await updateProfile(activeId, { name, handle, bio, avatar })
+    await updateProfile(activeId, { name, handle, bio, avatar, coverPhoto })
     await loadProfiles()
     setEditingProfile(false)
   }
@@ -90,6 +93,11 @@ export default function Profile() {
   const handleAvatarUpload = async (file) => {
     if (!file || !file.type.startsWith('image/')) return
     setAvatar(await readFileAsDataURL(file))
+  }
+
+  const handleCoverPhotoUpload = async (file) => {
+    if (!file || !file.type.startsWith('image/')) return
+    setCoverPhoto(await readFileAsDataURL(file))
   }
 
   const handleFile = async (file) => {
@@ -187,13 +195,39 @@ export default function Profile() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="relative overflow-hidden rounded-2xl border backdrop-blur-sm" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-card)' }}>
-        <div className="absolute inset-0 bg-gradient-to-br from-theme-accent/5 to-transparent pointer-events-none" />
+        <div 
+          className="relative h-48 w-full cursor-pointer overflow-hidden sm:h-56" 
+          style={{ backgroundColor: 'var(--bg-secondary)' }}
+          onClick={() => coverInputRef.current?.click()}
+        >
+          {coverPhoto ? (
+            <img src={coverPhoto} alt="Cover" className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <div className="text-center">
+                <IconUpload size={24} style={{ color: 'var(--text-muted)' }} className="mx-auto" />
+                <p className="mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>Click to upload cover photo</p>
+                <p className="mt-1 text-[10px]" style={{ color: 'var(--text-faint)' }}>Recommended: 1200 x 400 pixels</p>
+              </div>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+          <button 
+            onClick={(e) => { e.stopPropagation(); coverInputRef.current?.click() }} 
+            className="absolute right-3 top-3 rounded-full p-2 opacity-0 transition-all duration-200 hover:scale-110 group-hover:opacity-100" 
+            style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}
+            aria-label="Change cover photo"
+          >
+            <IconPen size={14} />
+          </button>
+          <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleCoverPhotoUpload(e.target.files[0])} />
+        </div>
         
-        <div className="relative flex flex-col items-center gap-6 p-8 sm:flex-row sm:p-10">
-          <div className="group relative shrink-0">
+        <div className="relative flex flex-col items-center gap-6 px-8 pb-8 sm:flex-row sm:px-10">
+          <div className="group relative -mt-14 shrink-0 sm:-mt-16">
             <div 
               className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full cursor-pointer transition-all duration-200 group-hover:scale-105" 
-              style={{ backgroundColor: 'var(--bg-secondary)', border: '2px solid var(--border-primary)' }}
+              style={{ backgroundColor: 'var(--bg-secondary)', border: '4px solid var(--bg-card)' }}
               onClick={() => avatarInputRef.current?.click()} 
               role="button" 
               tabIndex={0}
