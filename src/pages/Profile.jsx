@@ -201,8 +201,8 @@ export default function Profile() {
     <div className="mx-auto max-w-5xl">
       <div className="relative overflow-hidden rounded-2xl border backdrop-blur-sm" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-card)' }}>
         <div 
-          className="relative h-48 w-full overflow-hidden sm:h-56" 
-          style={{ backgroundColor: 'var(--bg-secondary)' }}
+          className="relative w-full overflow-hidden" 
+          style={{ backgroundColor: 'var(--bg-secondary)', aspectRatio: '3 / 1' }}
         >
           {coverPhoto ? (
             <img 

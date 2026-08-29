@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { IconX, IconUpload, IconReset } from './icons.jsx'
-import { readFileAsDataURL, loadImage } from '../lib/imageProcessing.js'
+import { readFileAsDataURL } from '../lib/imageProcessing.js'
 
 export default function ProfileSettings({ profile, onSave, onClose }) {
   const [name, setName] = useState(profile.name || '')
@@ -114,14 +114,21 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
 
         <div className="flex flex-col gap-6 p-6">
           <div>
-            <p className="mb-3 text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Cover Photo</p>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Cover Photo</p>
+              <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>1200 x 400 px</span>
+            </div>
             <div 
               ref={coverContainerRef}
               onPointerDown={onCoverPointerDown}
               onPointerMove={onCoverPointerMove}
               onPointerUp={onCoverPointerUp}
-              className="relative h-40 w-full cursor-grab overflow-hidden rounded-xl active:cursor-grabbing sm:h-48"
-              style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-primary)' }}
+              className="relative w-full cursor-grab overflow-hidden rounded-xl active:cursor-grabbing"
+              style={{ 
+                backgroundColor: 'var(--bg-secondary)', 
+                border: '1px solid var(--border-primary)',
+                aspectRatio: '3 / 1'
+              }}
             >
               {coverPhoto ? (
                 <>
@@ -148,7 +155,6 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
                 >
                   <IconUpload size={24} style={{ color: 'var(--text-muted)' }} />
                   <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Click to upload cover photo</p>
-                  <p className="text-[10px]" style={{ color: 'var(--text-faint)' }}>Recommended: 1200 x 400 pixels</p>
                 </div>
               )}
               <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleCoverUpload(e.target.files[0])} />
@@ -173,14 +179,17 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
           </div>
 
           <div>
-            <p className="mb-3 text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Profile Picture</p>
-            <div className="flex items-center gap-4">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Profile Picture</p>
+              <span className="text-[10px]" style={{ color: 'var(--text-faint)' }}>400 x 400 px</span>
+            </div>
+            <div className="flex items-start gap-5">
               <div 
                 ref={avatarContainerRef}
                 onPointerDown={onAvatarPointerDown}
                 onPointerMove={onAvatarPointerMove}
                 onPointerUp={onAvatarPointerUp}
-                className="relative h-24 w-24 shrink-0 cursor-grab overflow-hidden rounded-full active:cursor-grabbing"
+                className="relative h-28 w-28 shrink-0 cursor-grab overflow-hidden rounded-full active:cursor-grabbing"
                 style={{ backgroundColor: 'var(--bg-secondary)', border: '3px solid var(--border-primary)' }}
               >
                 {avatar ? (
@@ -208,7 +217,7 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
                 )}
                 <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(e.target.files[0])} />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 pt-2">
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Drag to reposition within circle</p>
                 {avatar && (
                   <div className="flex items-center gap-2">
