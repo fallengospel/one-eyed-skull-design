@@ -37,7 +37,7 @@ export default function Nav() {
             )}
           </NavLink>
           <NavLink
-            to="/gallery"
+            to="/vault"
             className={({ isActive }) =>
               `relative px-3 py-2 text-[11px] font-medium tracking-[0.15em] uppercase transition-colors ${
                 isActive ? 'text-bone-100' : 'text-bone-500 hover:text-bone-300'
@@ -46,41 +46,7 @@ export default function Nav() {
           >
             {({ isActive }) => (
               <>
-                Collection
-                {isActive && (
-                  <span className="absolute -bottom-[22px] left-2 right-2 h-0.5 rounded-full bg-venom-500" />
-                )}
-              </>
-            )}
-          </NavLink>
-          <NavLink
-            to="/forge"
-            className={({ isActive }) =>
-              `relative px-3 py-2 text-[11px] font-medium tracking-[0.15em] uppercase transition-colors ${
-                isActive ? 'text-bone-100' : 'text-bone-500 hover:text-bone-300'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                Forge
-                {isActive && (
-                  <span className="absolute -bottom-[22px] left-2 right-2 h-0.5 rounded-full bg-venom-500" />
-                )}
-              </>
-            )}
-          </NavLink>
-          <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              `relative px-3 py-2 text-[11px] font-medium tracking-[0.15em] uppercase transition-colors ${
-                isActive ? 'text-bone-100' : 'text-bone-500 hover:text-bone-300'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                Profile
+                The Vault
                 {isActive && (
                   <span className="absolute -bottom-[22px] left-2 right-2 h-0.5 rounded-full bg-venom-500" />
                 )}

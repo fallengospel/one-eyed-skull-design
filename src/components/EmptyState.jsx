@@ -11,13 +11,13 @@ export default function EmptyState() {
         The wall is bare.
       </h2>
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-bone-500">
-        No covers pinned yet. Fire up The Forge and give this wall something to stare at.
+        No covers yet. Enter The Vault to create your first cover.
       </p>
       <Link
-        to="/forge"
+        to="/vault"
         className="mt-8 rounded-md bg-venom-500 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-venom-400"
       >
-        Open The Forge
+        Enter The Vault
       </Link>
     </div>
   )

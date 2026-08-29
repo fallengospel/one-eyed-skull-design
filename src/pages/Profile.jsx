@@ -1,21 +1,17 @@
 ﻿import { useState, useEffect, useRef } from 'react'
 import {
   listProfiles, setActiveProfile,
-  createProfile, updateProfile, deleteProfile,
+  updateProfile,
   listCollection, createCollectionItem, updateCollectionItem, deleteCollectionItem,
 } from '../lib/storage.js'
 import { PRESETS, FRAMES, bakeCover, readFileAsDataURL, loadImage } from '../lib/imageProcessing.js'
-import { IconUpload, IconX, IconMinus, IconPlus, IconReset, IconPen, IconTrash, IconPlus as IconAdd } from '../components/icons.jsx'
+import { IconUpload, IconX, IconMinus, IconPlus, IconReset, IconPen, IconTrash } from '../components/icons.jsx'
 import SkullLogo from '../components/SkullLogo.jsx'
 
 export default function Profile() {
   const [profiles, setProfiles] = useState(null)
   const [activeId, setActiveId] = useState(null)
-  const [showNewProfile, setShowNewProfile] = useState(false)
   const [editingProfile, setEditingProfile] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [newHandle, setNewHandle] = useState('')
-  const [newBio, setNewBio] = useState('')
   const [name, setName] = useState('')
   const [handle, setHandle] = useState('')
   const [bio, setBio] = useState('')
@@ -38,14 +34,13 @@ export default function Profile() {
   const [error, setError] = useState('')
   const [dragOver, setDragOver] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
-  const [confirmDelProfile, setConfirmDelProfile] = useState(null)
   const previewRef = useRef(null)
   const panning = useRef(false)
   const lastPos = useRef({ x: 0, y: 0 })
   const fileInputRef = useRef(null)
   const avatarInputRef = useRef(null)
 
-  useEffect(() => { document.title = 'Profile — OneEyedSkullDesign' }, [])
+  useEffect(() => { document.title = 'The Vault — OneEyedSkullDesign' }, [])
 
   const loadProfiles = async () => {
     const p = await listProfiles()
@@ -85,32 +80,10 @@ export default function Profile() {
     await loadCollection(id)
   }
 
-  const handleCreateProfile = async () => {
-    if (!newName.trim()) return
-    const created = await createProfile({
-      name: newName.trim(),
-      handle: newHandle.trim() || newName.trim().toLowerCase().replace(/\s+/g, '-'),
-      bio: newBio.trim(),
-      avatar: null,
-    })
-    await loadProfiles()
-    setNewName(''); setNewHandle(''); setNewBio('')
-    setShowNewProfile(false)
-    switchProfile(created.id)
-  }
-
   const handleSaveProfile = async () => {
     await updateProfile(activeId, { name, handle, bio, avatar })
     await loadProfiles()
     setEditingProfile(false)
-  }
-
-  const handleDeleteProfile = async (id) => {
-    if (id === 'default') return
-    await deleteProfile(id)
-    const p = await loadProfiles()
-    switchProfile(p[0].id)
-    setConfirmDelProfile(null)
   }
 
   const handleAvatarUpload = async (file) => {
@@ -212,26 +185,8 @@ export default function Profile() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-display text-2xl tracking-wide text-bone-50 sm:text-3xl">PROFILES</h1>
-        <button onClick={() => setShowNewProfile(true)} className="flex items-center gap-2 rounded-full bg-venom-500 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white hover:bg-venom-400">
-          <IconAdd size={14} /> New Profile
-        </button>
-      </div>
-
-      <div className="mb-6 flex gap-3 overflow-x-auto pb-2 scroll-thin">
-        {profiles.map((p) => (
-          <button key={p.id} onClick={() => switchProfile(p.id)} className={`relative flex shrink-0 items-center gap-3 rounded-xl border px-4 py-3 transition-all ${activeId === p.id ? 'border-venom-500 bg-symbiote-800 shadow-lg' : 'border-white/10 bg-symbiote-800/40 hover:border-white/25'}`}>
-            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-symbiote-700">
-              {p.avatar ? <img src={p.avatar} alt="" className="h-full w-full object-cover" /> : <SkullLogo size={24} className="opacity-40" />}
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-medium text-bone-100">{p.name}</p>
-              <p className="text-xs text-bone-500">{p.isDefault ? 'Default' : 'Custom'}</p>
-            </div>
-            {activeId === p.id && <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-venom-500" />}
-          </button>
-        ))}
+      <div className="mb-6">
+        <h1 className="font-display text-2xl tracking-wide text-bone-50 sm:text-3xl">THE VAULT</h1>
       </div>
 
       <div className="relative rounded-xl border border-white/5 bg-symbiote-800/40 p-6 sm:p-8">
@@ -261,18 +216,8 @@ export default function Profile() {
                 <h2 className="font-display text-2xl tracking-wide text-bone-50">{name || 'Your Profile'}</h2>
                 {handle && <p className="mt-0.5 text-sm text-bone-500">@{handle}</p>}
                 {bio && <p className="mt-2 text-sm text-bone-400">{bio}</p>}
-                <div className="mt-3 flex gap-2">
+                <div className="mt-3">
                   <button onClick={() => setEditingProfile(true)} className="rounded-md border border-white/15 px-4 py-2 text-xs font-medium uppercase tracking-wider text-bone-400 hover:bg-symbiote-700 hover:text-bone-200">Edit Profile</button>
-                  {!profiles.find((p) => p.id === activeId)?.isDefault && (
-                    confirmDelProfile === activeId ? (
-                      <div className="flex gap-2">
-                        <button onClick={() => handleDeleteProfile(activeId)} className="rounded-md bg-venom-500 px-4 py-2 text-xs font-semibold text-white">Confirm Delete</button>
-                        <button onClick={() => setConfirmDelProfile(null)} className="rounded-md border border-white/15 px-4 py-2 text-xs text-bone-400">Cancel</button>
-                      </div>
-                    ) : (
-                      <button onClick={() => setConfirmDelProfile(activeId)} className="rounded-md border border-venom-500/40 px-4 py-2 text-xs font-medium uppercase tracking-wider text-venom-400 hover:bg-venom-500/10">Delete Profile</button>
-                    )
-                  )}
                 </div>
               </>
             )}
@@ -322,32 +267,6 @@ export default function Profile() {
           </div>
         )}
       </div>
-
-      {showNewProfile && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setShowNewProfile(false)}>
-          <div className="w-full max-w-md rounded-xl border border-white/10 bg-symbiote-900 p-6 animate-pop" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-display text-xl tracking-wide text-bone-50">NEW PROFILE</h3>
-            <div className="mt-4 flex flex-col gap-3">
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-bone-500">Name <span className="text-venom-400">*</span></span>
-                <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Profile name" className="field-input" autoFocus />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-bone-500">Handle</span>
-                <input type="text" value={newHandle} onChange={(e) => setNewHandle(e.target.value)} placeholder="@handle (auto if empty)" className="field-input" />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-bone-500">Bio</span>
-                <textarea value={newBio} onChange={(e) => setNewBio(e.target.value)} placeholder="Short bio..." rows={2} className="field-input resize-none" />
-              </label>
-            </div>
-            <div className="mt-5 flex gap-2">
-              <button onClick={handleCreateProfile} disabled={!newName.trim()} className="flex-1 rounded-md bg-venom-500 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white hover:bg-venom-400 disabled:opacity-40">Create Profile</button>
-              <button onClick={() => setShowNewProfile(false)} className="rounded-md border border-white/15 px-4 py-2.5 text-xs text-bone-400 hover:text-bone-200">Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {showUpload && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">

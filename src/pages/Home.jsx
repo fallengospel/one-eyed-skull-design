@@ -42,17 +42,11 @@ export default function Home() {
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
-              to="/gallery"
+              to="/vault"
               className="group flex items-center gap-2 rounded-full bg-venom-500 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-venom-400 hover:shadow-[0_0_40px_-8px_rgba(193,18,31,0.5)]"
             >
-              View Collection
+              Enter The Vault
               <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-            </Link>
-            <Link
-              to="/forge"
-              className="flex items-center gap-2 rounded-full border border-white/15 px-8 py-3.5 text-sm font-medium uppercase tracking-wider text-bone-300 transition-all hover:border-white/30 hover:text-bone-100"
-            >
-              Create Cover
             </Link>
           </div>
         </div>
@@ -92,9 +86,9 @@ export default function Home() {
           <div className="mb-12 flex items-end justify-between">
             <div>
               <p className="mb-3 text-xs font-medium uppercase tracking-[0.3em] text-venom-400">Recent Work</p>
-              <h2 className="font-display text-3xl tracking-wide text-bone-50 sm:text-4xl">THE WALL</h2>
+              <h2 className="font-display text-3xl tracking-wide text-bone-50 sm:text-4xl">RECENT WORK</h2>
             </div>
-            <Link to="/gallery" className="text-xs font-medium uppercase tracking-wider text-bone-500 transition-colors hover:text-bone-300">
+            <Link to="/vault" className="text-xs font-medium uppercase tracking-wider text-bone-500 transition-colors hover:text-bone-300">
               View All
             </Link>
           </div>
@@ -132,10 +126,10 @@ export default function Home() {
             Upload your first album cover and build your collection.
           </p>
           <Link
-            to="/forge"
+            to="/vault"
             className="mt-8 inline-flex items-center gap-2 rounded-full bg-venom-500 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-venom-400"
           >
-            Open The Forge
+            Enter The Vault
           </Link>
         </div>
       </section>
