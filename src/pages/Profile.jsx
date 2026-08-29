@@ -3,11 +3,13 @@ import {
   listProfiles, setActiveProfile,
   updateProfile,
   listCollection, createCollectionItem, updateCollectionItem, deleteCollectionItem,
+  listAlbums, createAlbum, updateAlbum, deleteAlbum,
 } from '../lib/storage.js'
 import { PRESETS, FRAMES, bakeCover, readFileAsDataURL, loadImage } from '../lib/imageProcessing.js'
 import { IconUpload, IconX, IconMinus, IconPlus, IconReset, IconPen, IconTrash, IconEye } from '../components/icons.jsx'
 import SkullLogo from '../components/SkullLogo.jsx'
 import ProfileSettings from '../components/ProfileSettings.jsx'
+import AlbumUpload from '../components/AlbumUpload.jsx'
 
 export default function Profile() {
   const [profiles, setProfiles] = useState(null)
@@ -41,6 +43,11 @@ export default function Profile() {
   const [dragOver, setDragOver] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [viewItem, setViewItem] = useState(null)
+  const [albums, setAlbums] = useState(null)
+  const [showAlbumUpload, setShowAlbumUpload] = useState(false)
+  const [editingAlbum, setEditingAlbum] = useState(null)
+  const [viewAlbum, setViewAlbum] = useState(null)
+  const [confirmDeleteAlbum, setConfirmDeleteAlbum] = useState(null)
   const previewRef = useRef(null)
   const panning = useRef(false)
   const lastPos = useRef({ x: 0, y: 0 })
@@ -58,6 +65,10 @@ export default function Profile() {
     setCollection(await listCollection(pid))
   }
 
+  const loadAlbums = async (pid) => {
+    setAlbums(await listAlbums(pid))
+  }
+
   useEffect(() => {
     loadProfiles().then((p) => {
       const active = p[0]
@@ -65,6 +76,7 @@ export default function Profile() {
         setActiveId(active.id)
         fillProfile(active)
         loadCollection(active.id)
+        loadAlbums(active.id)
       }
     })
   }, [])
@@ -88,7 +100,9 @@ export default function Profile() {
     if (p) fillProfile(p)
     setEditingProfile(false)
     setCollection(null)
+    setAlbums(null)
     await loadCollection(id)
+    await loadAlbums(id)
   }
 
   const handleSaveProfile = async () => {
@@ -193,6 +207,23 @@ export default function Profile() {
 
   const startNewUpload = () => { resetUploadForm(); setEditingItem(null); setShowUpload(true) }
   const cssFilter = PRESETS.find((p) => p.id === preset)?.css || 'none'
+
+  const handleSaveAlbum = async (data) => {
+    if (editingAlbum) {
+      await updateAlbum(editingAlbum.id, data)
+    } else {
+      await createAlbum(activeId, data)
+    }
+    await loadAlbums(activeId)
+    setShowAlbumUpload(false)
+    setEditingAlbum(null)
+  }
+
+  const handleDeleteAlbum = async (id) => {
+    await deleteAlbum(id)
+    await loadAlbums(activeId)
+    setConfirmDeleteAlbum(null)
+  }
 
   if (!profiles || !activeId) {
     return (
@@ -397,6 +428,133 @@ export default function Profile() {
                       </button>
                       <button 
                         onClick={() => setConfirmDelete(null)} 
+                        className="rounded-lg border px-4 py-2 text-xs" 
+                        style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-10">
+        <div className="flex items-center justify-between" style={{ borderBottom: '1px solid var(--border-primary)' }}>
+          <p className="pb-4 text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            Albums
+            {albums && albums.length > 0 && (
+              <span className="ml-2" style={{ color: 'var(--text-faint)' }}>({albums.length})</span>
+            )}
+          </p>
+          <button 
+            onClick={() => { setEditingAlbum(null); setShowAlbumUpload(true) }}
+            className="flex items-center gap-2 rounded-lg bg-theme-accent px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
+          >
+            <IconUpload size={14} />
+            Create Album
+          </button>
+        </div>
+
+        {albums === null ? (
+          <div className="grid grid-cols-2 gap-4 py-8 sm:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i}>
+                <div className="skeleton aspect-square rounded-xl" />
+                <div className="skeleton mt-2 h-4 w-3/4 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : albums.length === 0 ? (
+          <div className="flex flex-col items-center py-24 text-center">
+            <div className="animate-float mb-6 opacity-20">
+              <SkullLogo size={80} />
+            </div>
+            <p className="font-display text-lg" style={{ color: 'var(--text-muted)' }}>No albums yet.</p>
+            <p className="mt-2 text-sm" style={{ color: 'var(--text-faint)' }}>
+              Create your first album to organize multiple covers.
+            </p>
+            <button 
+              onClick={() => { setEditingAlbum(null); setShowAlbumUpload(true) }}
+              className="mt-6 rounded-lg bg-theme-accent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
+            >
+              Create Album
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 py-6 sm:grid-cols-2 lg:grid-cols-3">
+            {albums.map((album, i) => (
+              <div 
+                key={album.id} 
+                className="animate-rise group overflow-hidden rounded-xl transition-all duration-200 hover:-translate-y-1 hover:shadow-theme-lg" 
+                style={{ 
+                  animationDelay: `${i * 60}ms`,
+                  backgroundColor: 'var(--bg-card)',
+                  border: '1px solid var(--border-primary)'
+                }}
+              >
+                <div className="relative grid grid-cols-2 gap-0.5 p-0.5" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                  {album.images.slice(0, 4).map((img, j) => (
+                    <div key={img.id} className="aspect-square overflow-hidden">
+                      <img src={img.src} alt={img.name} className="h-full w-full object-cover" />
+                    </div>
+                  ))}
+                  {album.images.length < 4 && Array.from({ length: 4 - album.images.length }).map((_, j) => (
+                    <div key={`empty-${j}`} className="aspect-square flex items-center justify-center" style={{ backgroundColor: 'var(--bg-card)' }}>
+                      <IconUpload size={16} style={{ color: 'var(--text-faint)' }} />
+                    </div>
+                  ))}
+                  <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/0 opacity-0 transition-all duration-200 group-hover:bg-black/40 group-hover:opacity-100">
+                    <button 
+                      onClick={() => setViewAlbum(album)} 
+                      className="rounded-full bg-white/90 p-2.5 text-symbiote-900 transition-transform hover:scale-110"
+                    >
+                      <IconEye size={16} />
+                    </button>
+                    <button 
+                      onClick={() => { setEditingAlbum(album); setShowAlbumUpload(true) }}
+                      className="rounded-full bg-white/90 p-2.5 text-symbiote-900 transition-transform hover:scale-110"
+                    >
+                      <IconPen size={16} />
+                    </button>
+                    <button 
+                      onClick={() => setConfirmDeleteAlbum(album.id)} 
+                      className={`rounded-full p-2.5 transition-all ${confirmDeleteAlbum === album.id ? 'bg-venom-500 text-white' : 'bg-white/90 text-symbiote-900 hover:bg-venom-500 hover:text-white'}`}
+                    >
+                      <IconTrash size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <h3 className="truncate text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{album.title}</h3>
+                  <p className="mt-0.5 truncate text-xs" style={{ color: 'var(--text-muted)' }}>{album.artist}</p>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {album.tags?.slice(0, 3).map((tag) => (
+                      <span key={tag} className="rounded-full px-2 py-0.5 text-[10px]" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
+                        {tag}
+                      </span>
+                    ))}
+                    {album.images.length > 0 && (
+                      <span className="rounded-full px-2 py-0.5 text-[10px]" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent)' }}>
+                        {album.images.length} images
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {confirmDeleteAlbum === album.id && (
+                  <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm" style={{ backgroundColor: 'var(--bg-card)' }}>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleDeleteAlbum(album.id)} 
+                        className="rounded-lg bg-venom-500 px-4 py-2 text-xs font-semibold text-white"
+                      >
+                        Delete
+                      </button>
+                      <button 
+                        onClick={() => setConfirmDeleteAlbum(null)} 
                         className="rounded-lg border px-4 py-2 text-xs" 
                         style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
                       >
@@ -646,6 +804,93 @@ export default function Profile() {
           onSave={handleSaveSettings}
           onClose={() => setShowSettings(false)}
         />
+      )}
+
+      {showAlbumUpload && (
+        <AlbumUpload
+          existingAlbum={editingAlbum}
+          onSave={handleSaveAlbum}
+          onClose={() => { setShowAlbumUpload(false); setEditingAlbum(null) }}
+        />
+      )}
+
+      {viewAlbum && (
+        <div 
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 backdrop-blur-sm" 
+          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+          onClick={() => setViewAlbum(null)}
+        >
+          <div 
+            className="relative flex max-h-[90vh] w-full max-w-5xl flex-col overflow-y-auto rounded-2xl shadow-2xl animate-pop" 
+            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b px-6 py-4" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-card)' }}>
+              <div>
+                <h2 className="font-display text-xl tracking-wide" style={{ color: 'var(--text-primary)' }}>
+                  {viewAlbum.title}
+                </h2>
+                <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>
+                  {viewAlbum.artist} {viewAlbum.year && `• ${viewAlbum.year}`}
+                </p>
+              </div>
+              <button 
+                onClick={() => setViewAlbum(null)} 
+                className="rounded-full p-2 transition-colors hover:bg-theme-bg-alt"
+                aria-label="Close"
+              >
+                <IconX size={20} style={{ color: 'var(--text-secondary)' }} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {viewAlbum.tags && viewAlbum.tags.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-1.5">
+                  {viewAlbum.tags.map((tag) => (
+                    <span key={tag} className="rounded-full px-2.5 py-0.5 text-xs" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {viewAlbum.notes && (
+                <p className="mb-4 text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{viewAlbum.notes}</p>
+              )}
+
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                {viewAlbum.images.map((img) => (
+                  <div key={img.id} className="aspect-square overflow-hidden rounded-lg" style={{ border: '1px solid var(--border-primary)' }}>
+                    <img src={img.src} alt={img.name} className="h-full w-full object-cover" />
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 flex items-center gap-2 pt-4 text-xs" style={{ color: 'var(--text-faint)' }}>
+                <span>Created {new Date(viewAlbum.createdAt).toLocaleDateString()}</span>
+                <span>•</span>
+                <span>{viewAlbum.images.length} images</span>
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <button
+                  onClick={() => { setEditingAlbum(viewAlbum); setShowAlbumUpload(true); setViewAlbum(null) }}
+                  className="flex-1 rounded-lg px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors"
+                  style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
+                >
+                  Edit Album
+                </button>
+                <button
+                  onClick={() => { setConfirmDeleteAlbum(viewAlbum.id); setViewAlbum(null) }}
+                  className="flex-1 rounded-lg border px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors hover:bg-venom-500 hover:text-white hover:border-venom-500"
+                  style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+                >
+                  Delete Album
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

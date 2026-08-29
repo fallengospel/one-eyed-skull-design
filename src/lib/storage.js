@@ -2,6 +2,7 @@ const COVERS_KEY = 'oesd.covers.v1'
 const PROFILES_KEY = 'oesd.profiles.v1'
 const ACTIVE_PROFILE_KEY = 'oesd.activeProfile.v1'
 const COLLECTION_PREFIX = 'oesd.collection.'
+const ALBUMS_KEY = 'oesd.albums.v1'
 
 const DEFAULT_PROFILE = {
   id: 'default',
@@ -168,4 +169,42 @@ export async function deleteCollectionItem(profileId, itemId) {
   console.log('[Storage] deleteCollectionItem:', itemId)
   const key = collectionKey(profileId)
   write(key, read(key).filter((c) => c.id !== itemId))
+}
+
+export async function listAlbums(profileId) {
+  const albums = read(ALBUMS_KEY)
+  return albums.filter((a) => a.profileId === profileId)
+}
+
+export async function getAlbum(albumId) {
+  return read(ALBUMS_KEY).find((a) => a.id === albumId) ?? null
+}
+
+export async function createAlbum(profileId, data) {
+  console.log('[Storage] createAlbum:', data.title, 'profile:', profileId)
+  const albums = read(ALBUMS_KEY)
+  const album = {
+    ...data,
+    id: crypto.randomUUID(),
+    profileId,
+    images: data.images || [],
+    createdAt: Date.now(),
+  }
+  write(ALBUMS_KEY, [album, ...albums])
+  return album
+}
+
+export async function updateAlbum(albumId, data) {
+  console.log('[Storage] updateAlbum:', albumId)
+  const albums = read(ALBUMS_KEY)
+  const idx = albums.findIndex((a) => a.id === albumId)
+  if (idx === -1) return null
+  albums[idx] = { ...albums[idx], ...data, updatedAt: Date.now() }
+  write(ALBUMS_KEY, albums)
+  return albums[idx]
+}
+
+export async function deleteAlbum(albumId) {
+  console.log('[Storage] deleteAlbum:', albumId)
+  write(ALBUMS_KEY, read(ALBUMS_KEY).filter((a) => a.id !== albumId))
 }
