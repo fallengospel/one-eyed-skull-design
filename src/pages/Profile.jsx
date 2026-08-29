@@ -7,17 +7,20 @@ import {
 import { PRESETS, FRAMES, bakeCover, readFileAsDataURL, loadImage } from '../lib/imageProcessing.js'
 import { IconUpload, IconX, IconMinus, IconPlus, IconReset, IconPen, IconTrash } from '../components/icons.jsx'
 import SkullLogo from '../components/SkullLogo.jsx'
+import ProfileSettings from '../components/ProfileSettings.jsx'
 
 export default function Profile() {
   const [profiles, setProfiles] = useState(null)
   const [activeId, setActiveId] = useState(null)
-  const [editingProfile, setEditingProfile] = useState(false)
   const [name, setName] = useState('')
   const [handle, setHandle] = useState('')
   const [bio, setBio] = useState('')
   const [avatar, setAvatar] = useState(null)
+  const [avatarOffset, setAvatarOffset] = useState(50)
   const [coverPhoto, setCoverPhoto] = useState(null)
+  const [coverOffset, setCoverOffset] = useState(50)
   const [collection, setCollection] = useState(null)
+  const [showSettings, setShowSettings] = useState(false)
   const [showUpload, setShowUpload] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [src, setSrc] = useState(null)
@@ -40,8 +43,6 @@ export default function Profile() {
   const panning = useRef(false)
   const lastPos = useRef({ x: 0, y: 0 })
   const fileInputRef = useRef(null)
-  const avatarInputRef = useRef(null)
-  const coverInputRef = useRef(null)
 
   useEffect(() => { document.title = 'The Vault — OneEyedSkullDesign' }, [])
 
@@ -71,7 +72,9 @@ export default function Profile() {
     setHandle(p.handle || '')
     setBio(p.bio || '')
     setAvatar(p.avatar || null)
+    setAvatarOffset(p.avatarOffset || 50)
     setCoverPhoto(p.coverPhoto || null)
+    setCoverOffset(p.coverOffset || 50)
   }
 
   const switchProfile = async (id) => {
@@ -85,19 +88,21 @@ export default function Profile() {
   }
 
   const handleSaveProfile = async () => {
-    await updateProfile(activeId, { name, handle, bio, avatar, coverPhoto })
+    await updateProfile(activeId, { name, handle, bio, avatar, avatarOffset, coverPhoto, coverOffset })
     await loadProfiles()
-    setEditingProfile(false)
   }
 
-  const handleAvatarUpload = async (file) => {
-    if (!file || !file.type.startsWith('image/')) return
-    setAvatar(await readFileAsDataURL(file))
-  }
-
-  const handleCoverPhotoUpload = async (file) => {
-    if (!file || !file.type.startsWith('image/')) return
-    setCoverPhoto(await readFileAsDataURL(file))
+  const handleSaveSettings = async (data) => {
+    setName(data.name)
+    setHandle(data.handle)
+    setBio(data.bio)
+    setAvatar(data.avatar)
+    setAvatarOffset(data.avatarOffset)
+    setCoverPhoto(data.coverPhoto)
+    setCoverOffset(data.coverOffset)
+    await updateProfile(activeId, data)
+    await loadProfiles()
+    setShowSettings(false)
   }
 
   const handleFile = async (file) => {
@@ -196,120 +201,90 @@ export default function Profile() {
     <div className="mx-auto max-w-5xl">
       <div className="relative overflow-hidden rounded-2xl border backdrop-blur-sm" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-card)' }}>
         <div 
-          className="relative h-48 w-full cursor-pointer overflow-hidden sm:h-56" 
+          className="relative h-48 w-full overflow-hidden sm:h-56" 
           style={{ backgroundColor: 'var(--bg-secondary)' }}
-          onClick={() => coverInputRef.current?.click()}
         >
           {coverPhoto ? (
-            <img src={coverPhoto} alt="Cover" className="h-full w-full object-cover" />
+            <img 
+              src={coverPhoto} 
+              alt="Cover" 
+              className="absolute left-0 w-full object-cover"
+              style={{ 
+                height: '200%',
+                top: `calc(-50% + ${coverOffset}% - 25%)`,
+                pointerEvents: 'none'
+              }}
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
               <div className="text-center">
                 <IconUpload size={24} style={{ color: 'var(--text-muted)' }} className="mx-auto" />
-                <p className="mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>Click to upload cover photo</p>
-                <p className="mt-1 text-[10px]" style={{ color: 'var(--text-faint)' }}>Recommended: 1200 x 400 pixels</p>
+                <p className="mt-2 text-xs" style={{ color: 'var(--text-muted)' }}>No cover photo</p>
               </div>
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
           <button 
-            onClick={(e) => { e.stopPropagation(); coverInputRef.current?.click() }} 
+            onClick={() => setShowSettings(true)} 
             className="absolute right-3 top-3 rounded-full p-2 opacity-0 transition-all duration-200 hover:scale-110 group-hover:opacity-100" 
             style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}
-            aria-label="Change cover photo"
+            aria-label="Edit profile"
           >
             <IconPen size={14} />
           </button>
-          <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleCoverPhotoUpload(e.target.files[0])} />
         </div>
         
         <div className="relative flex flex-col items-center gap-6 px-8 pb-8 sm:flex-row sm:px-10">
           <div className="group relative -mt-14 shrink-0 sm:-mt-16">
             <div 
-              className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full cursor-pointer transition-all duration-200 group-hover:scale-105" 
+              className="relative h-28 w-28 overflow-hidden rounded-full" 
               style={{ backgroundColor: 'var(--bg-secondary)', border: '4px solid var(--bg-card)' }}
-              onClick={() => avatarInputRef.current?.click()} 
-              role="button" 
-              tabIndex={0}
             >
               {avatar ? (
-                <img src={avatar} alt="Avatar" className="h-full w-full object-cover" />
+                <img 
+                  src={avatar} 
+                  alt="Avatar" 
+                  className="absolute left-0 w-full object-cover"
+                  style={{ 
+                    height: '200%',
+                    top: `calc(-50% + ${avatarOffset}% - 25%)`,
+                    pointerEvents: 'none'
+                  }}
+                />
               ) : (
-                <SkullLogo size={48} style={{ opacity: 0.3 }} />
+                <div className="flex h-full w-full items-center justify-center">
+                  <SkullLogo size={48} style={{ opacity: 0.3 }} />
+                </div>
               )}
             </div>
             <button 
-              onClick={() => avatarInputRef.current?.click()} 
+              onClick={() => setShowSettings(true)} 
               className="absolute bottom-0 right-0 rounded-full bg-theme-accent p-2 text-white opacity-0 transition-all duration-200 group-hover:opacity-100 hover:scale-110" 
-              aria-label="Change avatar"
+              aria-label="Edit profile"
             >
               <IconPen size={14} />
             </button>
-            <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(e.target.files[0])} />
           </div>
 
           <div className="flex-1 text-center sm:text-left">
-            {editingProfile ? (
-              <div className="flex flex-col gap-3">
-                <input 
-                  type="text" 
-                  value={name} 
-                  onChange={(e) => setName(e.target.value)} 
-                  placeholder="Display name" 
-                  className="field-input text-lg font-bold" 
-                />
-                <input 
-                  type="text" 
-                  value={handle} 
-                  onChange={(e) => setHandle(e.target.value)} 
-                  placeholder="@handle" 
-                  className="field-input text-sm" 
-                />
-                <textarea 
-                  value={bio} 
-                  onChange={(e) => setBio(e.target.value)} 
-                  placeholder="Tell the world about your taste..." 
-                  rows={2} 
-                  className="field-input resize-none text-sm" 
-                />
-                <div className="flex gap-2">
-                  <button 
-                    onClick={handleSaveProfile} 
-                    className="rounded-lg bg-theme-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
-                  >
-                    Save Profile
-                  </button>
-                  <button 
-                    onClick={() => setEditingProfile(false)} 
-                    className="rounded-lg border px-4 py-2 text-xs transition-colors hover:opacity-80" 
-                    style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <h1 className="font-display text-2xl tracking-wide sm:text-3xl" style={{ color: 'var(--text-primary)' }}>
-                  {name || 'Your Profile'}
-                </h1>
-                {handle && (
-                  <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>@{handle}</p>
-                )}
-                {bio && (
-                  <p className="mt-3 text-sm leading-relaxed max-w-lg" style={{ color: 'var(--text-secondary)' }}>
-                    {bio}
-                  </p>
-                )}
-                <button 
-                  onClick={() => setEditingProfile(true)} 
-                  className="mt-4 rounded-lg border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors hover:opacity-80" 
-                  style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
-                >
-                  Edit Profile
-                </button>
-              </>
+            <h1 className="font-display text-2xl tracking-wide sm:text-3xl" style={{ color: 'var(--text-primary)' }}>
+              {name || 'Your Profile'}
+            </h1>
+            {handle && (
+              <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>@{handle}</p>
             )}
+            {bio && (
+              <p className="mt-3 text-sm leading-relaxed max-w-lg" style={{ color: 'var(--text-secondary)' }}>
+                {bio}
+              </p>
+            )}
+            <button 
+              onClick={() => setShowSettings(true)} 
+              className="mt-4 rounded-lg border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors hover:opacity-80" 
+              style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+            >
+              Edit Profile
+            </button>
           </div>
         </div>
       </div>
@@ -651,6 +626,14 @@ export default function Profile() {
             </div>
           </div>
         </div>
+      )}
+
+      {showSettings && (
+        <ProfileSettings
+          profile={{ name, handle, bio, avatar, avatarOffset, coverPhoto, coverOffset }}
+          onSave={handleSaveSettings}
+          onClose={() => setShowSettings(false)}
+        />
       )}
     </div>
   )
