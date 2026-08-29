@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { IconX, IconUpload, IconReset } from './icons.jsx'
+import { IconX, IconUpload, IconReset, IconMinus, IconPlus } from './icons.jsx'
 import { readFileAsDataURL } from '../lib/imageProcessing.js'
 
 export default function ProfileSettings({ profile, onSave, onClose }) {
@@ -8,8 +8,10 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
   const [bio, setBio] = useState(profile.bio || '')
   const [avatar, setAvatar] = useState(profile.avatar || null)
   const [avatarOffset, setAvatarOffset] = useState(profile.avatarOffset || 50)
+  const [avatarZoom, setAvatarZoom] = useState(profile.avatarZoom || 1)
   const [coverPhoto, setCoverPhoto] = useState(profile.coverPhoto || null)
   const [coverOffset, setCoverOffset] = useState(profile.coverOffset || 50)
+  const [coverZoom, setCoverZoom] = useState(profile.coverZoom || 1)
   const [saving, setSaving] = useState(false)
 
   const avatarInputRef = useRef(null)
@@ -26,6 +28,7 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
     const dataUrl = await readFileAsDataURL(file)
     setAvatar(dataUrl)
     setAvatarOffset(50)
+    setAvatarZoom(1)
   }
 
   const handleCoverUpload = async (file) => {
@@ -33,6 +36,7 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
     const dataUrl = await readFileAsDataURL(file)
     setCoverPhoto(dataUrl)
     setCoverOffset(50)
+    setCoverZoom(1)
   }
 
   const onAvatarPointerDown = (e) => {
@@ -84,8 +88,10 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
       bio: bio.trim(),
       avatar,
       avatarOffset,
+      avatarZoom,
       coverPhoto,
       coverOffset,
+      coverZoom,
     })
     setSaving(false)
   }
@@ -134,10 +140,12 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
                         src={avatar} 
                         alt="Avatar preview" 
                         draggable={false}
-                        className="absolute left-0 w-full select-none object-cover"
+                        className="absolute left-1/2 w-auto select-none"
                         style={{ 
-                          height: '200%',
+                          height: `${200 * avatarZoom}%`,
                           top: `calc(-50% + ${avatarOffset}% - 25%)`,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
                           pointerEvents: 'none'
                         }} 
                       />
@@ -153,27 +161,42 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
                   )}
                   <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(e.target.files[0])} />
                 </div>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Drag to reposition</p>
-                  {avatar && (
-                    <>
-                      <span style={{ color: 'var(--text-faint)' }}>·</span>
+                {avatar && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                       <button 
-                        onClick={() => setAvatarOffset(50)} 
-                        className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] transition-colors hover:bg-theme-bg-alt"
+                        onClick={() => setAvatarZoom((z) => Math.max(0.5, z - 0.1))} 
+                        className="rounded p-1 transition-colors hover:bg-theme-bg-alt"
                         style={{ color: 'var(--text-muted)' }}
                       >
-                        <IconReset size={12} /> Reset
+                        <IconMinus size={14} />
                       </button>
+                      <span className="w-10 text-center text-[10px] tabular-nums" style={{ color: 'var(--text-muted)' }}>
+                        {Math.round(avatarZoom * 100)}%
+                      </span>
                       <button 
-                        onClick={() => { setAvatar(null); setAvatarOffset(50) }} 
-                        className="rounded-md px-2 py-1 text-[10px] text-venom-400 transition-colors hover:bg-venom-500/10"
+                        onClick={() => setAvatarZoom((z) => Math.min(3, z + 0.1))} 
+                        className="rounded p-1 transition-colors hover:bg-theme-bg-alt"
+                        style={{ color: 'var(--text-muted)' }}
                       >
-                        Remove
+                        <IconPlus size={14} />
                       </button>
-                    </>
-                  )}
-                </div>
+                    </div>
+                    <button 
+                      onClick={() => { setAvatarOffset(50); setAvatarZoom(1) }} 
+                      className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] transition-colors hover:bg-theme-bg-alt"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      <IconReset size={12} /> Reset
+                    </button>
+                    <button 
+                      onClick={() => { setAvatar(null); setAvatarOffset(50); setAvatarZoom(1) }} 
+                      className="rounded-md px-2 py-1 text-[10px] text-venom-400 transition-colors hover:bg-venom-500/10"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -200,10 +223,12 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
                       src={coverPhoto} 
                       alt="Cover preview" 
                       draggable={false}
-                      className="absolute left-0 w-full select-none object-cover"
+                      className="absolute left-1/2 w-auto select-none"
                       style={{ 
-                        height: '200%',
+                        height: `${200 * coverZoom}%`,
                         top: `calc(-50% + ${coverOffset}% - 25%)`,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
                         pointerEvents: 'none'
                       }} 
                     />
@@ -224,16 +249,35 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
                 <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleCoverUpload(e.target.files[0])} />
               </div>
               {coverPhoto && (
-                <div className="mt-2 flex items-center gap-2">
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="flex items-center gap-1 rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                    <button 
+                      onClick={() => setCoverZoom((z) => Math.max(0.5, z - 0.1))} 
+                      className="rounded p-1 transition-colors hover:bg-theme-bg-alt"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      <IconMinus size={14} />
+                    </button>
+                    <span className="w-10 text-center text-[10px] tabular-nums" style={{ color: 'var(--text-muted)' }}>
+                      {Math.round(coverZoom * 100)}%
+                    </span>
+                    <button 
+                      onClick={() => setCoverZoom((z) => Math.min(3, z + 0.1))} 
+                      className="rounded p-1 transition-colors hover:bg-theme-bg-alt"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      <IconPlus size={14} />
+                    </button>
+                  </div>
                   <button 
-                    onClick={() => setCoverOffset(50)} 
+                    onClick={() => { setCoverOffset(50); setCoverZoom(1) }} 
                     className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] transition-colors hover:bg-theme-bg-alt"
                     style={{ color: 'var(--text-muted)' }}
                   >
                     <IconReset size={12} /> Reset
                   </button>
                   <button 
-                    onClick={() => { setCoverPhoto(null); setCoverOffset(50) }} 
+                    onClick={() => { setCoverPhoto(null); setCoverOffset(50); setCoverZoom(1) }} 
                     className="rounded-md px-2 py-1 text-[10px] text-venom-400 transition-colors hover:bg-venom-500/10"
                   >
                     Remove

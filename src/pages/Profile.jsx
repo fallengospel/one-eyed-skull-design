@@ -17,8 +17,10 @@ export default function Profile() {
   const [bio, setBio] = useState('')
   const [avatar, setAvatar] = useState(null)
   const [avatarOffset, setAvatarOffset] = useState(50)
+  const [avatarZoom, setAvatarZoom] = useState(1)
   const [coverPhoto, setCoverPhoto] = useState(null)
   const [coverOffset, setCoverOffset] = useState(50)
+  const [coverZoom, setCoverZoom] = useState(1)
   const [collection, setCollection] = useState(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showUpload, setShowUpload] = useState(false)
@@ -73,8 +75,10 @@ export default function Profile() {
     setBio(p.bio || '')
     setAvatar(p.avatar || null)
     setAvatarOffset(p.avatarOffset || 50)
+    setAvatarZoom(p.avatarZoom || 1)
     setCoverPhoto(p.coverPhoto || null)
     setCoverOffset(p.coverOffset || 50)
+    setCoverZoom(p.coverZoom || 1)
   }
 
   const switchProfile = async (id) => {
@@ -98,8 +102,10 @@ export default function Profile() {
     setBio(data.bio)
     setAvatar(data.avatar)
     setAvatarOffset(data.avatarOffset)
+    setAvatarZoom(data.avatarZoom)
     setCoverPhoto(data.coverPhoto)
     setCoverOffset(data.coverOffset)
+    setCoverZoom(data.coverZoom)
     await updateProfile(activeId, data)
     await loadProfiles()
     setShowSettings(false)
@@ -209,10 +215,12 @@ export default function Profile() {
               <img 
                 src={avatar} 
                 alt="Avatar" 
-                className="absolute left-0 w-full object-cover"
+                className="absolute left-1/2 w-auto"
                 style={{ 
-                  height: '200%',
+                  height: `${200 * avatarZoom}%`,
                   top: `calc(-50% + ${avatarOffset}% - 25%)`,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
                   pointerEvents: 'none'
                 }}
               />
@@ -261,10 +269,12 @@ export default function Profile() {
               <img 
                 src={coverPhoto} 
                 alt="Cover" 
-                className="absolute left-0 w-full object-cover"
+                className="absolute left-1/2 w-auto"
                 style={{ 
-                  height: '200%',
+                  height: `${200 * coverZoom}%`,
                   top: `calc(-50% + ${coverOffset}% - 25%)`,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
                   pointerEvents: 'none'
                 }}
               />
@@ -632,7 +642,7 @@ export default function Profile() {
 
       {showSettings && (
         <ProfileSettings
-          profile={{ name, handle, bio, avatar, avatarOffset, coverPhoto, coverOffset }}
+          profile={{ name, handle, bio, avatar, avatarOffset, avatarZoom, coverPhoto, coverOffset, coverZoom }}
           onSave={handleSaveSettings}
           onClose={() => setShowSettings(false)}
         />
