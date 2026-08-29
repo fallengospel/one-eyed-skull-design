@@ -24,7 +24,9 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
   const coverLastY = useRef(0)
 
   const handleAvatarUpload = async (file) => {
-    if (!file || !file.type.startsWith('image/')) return
+    if (!file) return
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if (!validTypes.includes(file.type)) return
     const dataUrl = await readFileAsDataURL(file)
     setAvatar(dataUrl)
     setAvatarOffset(50)
@@ -32,7 +34,9 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
   }
 
   const handleCoverUpload = async (file) => {
-    if (!file || !file.type.startsWith('image/')) return
+    if (!file) return
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if (!validTypes.includes(file.type)) return
     const dataUrl = await readFileAsDataURL(file)
     setCoverPhoto(dataUrl)
     setCoverOffset(50)
@@ -95,6 +99,8 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
     })
     setSaving(false)
   }
+
+  const isGif = (url) => url && url.startsWith('data:image/gif')
 
   return (
     <div 
@@ -159,10 +165,21 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
                       <IconUpload size={24} style={{ color: 'var(--text-muted)' }} />
                     </div>
                   )}
-                  <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(e.target.files[0])} />
+                  <input 
+                    ref={avatarInputRef} 
+                    type="file" 
+                    accept="image/jpeg,image/png,image/gif,image/webp" 
+                    className="hidden" 
+                    onChange={(e) => handleAvatarUpload(e.target.files[0])} 
+                  />
                 </div>
                 {avatar && (
                   <div className="flex items-center gap-3">
+                    {isGif(avatar) && (
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent)' }}>
+                        GIF
+                      </span>
+                    )}
                     <div className="flex items-center gap-1 rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                       <button 
                         onClick={() => setAvatarZoom((z) => Math.max(0.5, z - 0.1))} 
@@ -246,10 +263,21 @@ export default function ProfileSettings({ profile, onSave, onClose }) {
                     <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Click to upload cover photo</p>
                   </div>
                 )}
-                <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleCoverUpload(e.target.files[0])} />
+                <input 
+                  ref={coverInputRef} 
+                  type="file" 
+                  accept="image/jpeg,image/png,image/gif,image/webp" 
+                  className="hidden" 
+                  onChange={(e) => handleCoverUpload(e.target.files[0])} 
+                />
               </div>
               {coverPhoto && (
                 <div className="mt-2 flex items-center gap-3">
+                  {isGif(coverPhoto) && (
+                    <span className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent)' }}>
+                      GIF
+                    </span>
+                  )}
                   <div className="flex items-center gap-1 rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                     <button 
                       onClick={() => setCoverZoom((z) => Math.max(0.5, z - 0.1))} 
