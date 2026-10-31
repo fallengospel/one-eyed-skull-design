@@ -3,7 +3,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/one-eyed-skull-design/',
+  // Vercel serves from the domain root; GitHub Pages needs the project subpath
+  base: process.env.VERCEL ? '/' : '/one-eyed-skull-design/',
   build: {
     rollupOptions: {
       output: {
