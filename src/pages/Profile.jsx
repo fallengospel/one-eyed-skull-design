@@ -6,10 +6,11 @@ import {
   listAlbums, createAlbum, updateAlbum, deleteAlbum,
 } from '../lib/storage.js'
 import { PRESETS, FRAMES, bakeCover, readFileAsDataURL, loadImage } from '../lib/imageProcessing.js'
-import { IconUpload, IconX, IconMinus, IconPlus, IconReset, IconPen, IconTrash, IconEye } from '../components/icons.jsx'
+import { IconUpload, IconX, IconMinus, IconPlus, IconReset, IconPen, IconTrash, IconEye, IconSearch } from '../components/icons.jsx'
 import SkullLogo from '../components/SkullLogo.jsx'
 import ProfileSettings from '../components/ProfileSettings.jsx'
 import AlbumUpload from '../components/AlbumUpload.jsx'
+import { useEditMode } from '../context/EditModeContext.jsx'
 
 export default function Profile() {
   const [profiles, setProfiles] = useState(null)
@@ -48,6 +49,9 @@ export default function Profile() {
   const [editingAlbum, setEditingAlbum] = useState(null)
   const [viewAlbum, setViewAlbum] = useState(null)
   const [confirmDeleteAlbum, setConfirmDeleteAlbum] = useState(null)
+  const [search, setSearch] = useState('')
+  const [activeTag, setActiveTag] = useState(null)
+  const { editMode, setEditMode } = useEditMode()
   const previewRef = useRef(null)
   const panning = useRef(false)
   const lastPos = useRef({ x: 0, y: 0 })
@@ -208,6 +212,22 @@ export default function Profile() {
   const startNewUpload = () => { resetUploadForm(); setEditingItem(null); setShowUpload(true) }
   const cssFilter = PRESETS.find((p) => p.id === preset)?.css || 'none'
 
+  const allTags = collection
+    ? [...new Set(collection.flatMap((c) => c.tags || []))].sort()
+    : []
+  const filteredCollection = collection
+    ? collection.filter((item) => {
+        const q = search.trim().toLowerCase()
+        const matchesSearch =
+          !q ||
+          (item.title || '').toLowerCase().includes(q) ||
+          (item.artist || '').toLowerCase().includes(q) ||
+          (item.tags || []).some((t) => t.includes(q))
+        const matchesTag = !activeTag || (item.tags || []).includes(activeTag)
+        return matchesSearch && matchesTag
+      })
+    : null
+
   const handleSaveAlbum = async (data) => {
     if (editingAlbum) {
       await updateAlbum(editingAlbum.id, data)
@@ -236,6 +256,22 @@ export default function Profile() {
 
   return (
     <div className="mx-auto max-w-5xl">
+      {!editMode && (
+        <div className="mb-6 flex items-center justify-between rounded-xl border px-4 py-3 backdrop-blur-sm" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-card)' }}>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Viewing the portfolio as a visitor would see it.
+          </p>
+          <button
+            onClick={() => setEditMode(true)}
+            className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] transition-all hover:opacity-80"
+            style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+          >
+            <IconPen size={12} />
+            Enable edit mode
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col gap-6 rounded-2xl border p-6 backdrop-blur-sm sm:flex-row sm:items-center sm:p-8" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-card)' }}>
         <div className="group relative shrink-0">
           <div 
@@ -261,13 +297,15 @@ export default function Profile() {
               </div>
             )}
           </div>
-          <button 
-            onClick={() => setShowSettings(true)} 
-            className="absolute bottom-0 right-0 rounded-full bg-theme-accent p-2 text-white opacity-0 transition-all duration-200 group-hover:opacity-100 hover:scale-110" 
-            aria-label="Edit profile"
-          >
-            <IconPen size={14} />
-          </button>
+          {editMode && (
+            <button 
+              onClick={() => setShowSettings(true)} 
+              className="absolute bottom-0 right-0 rounded-full bg-theme-accent p-2 text-white opacity-100 transition-all duration-200 hover:scale-110"
+              aria-label="Edit profile"
+            >
+              <IconPen size={14} />
+            </button>
+          )}
         </div>
 
         <div className="flex-1 text-center sm:text-left">
@@ -282,13 +320,24 @@ export default function Profile() {
               {bio}
             </p>
           )}
-          <button 
-            onClick={() => setShowSettings(true)} 
-            className="mt-4 rounded-full border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors hover:opacity-80" 
-            style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
-          >
-            Edit Profile
-          </button>
+          {editMode ? (
+            <button 
+              onClick={() => setShowSettings(true)} 
+              className="mt-4 rounded-full border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors hover:opacity-80" 
+              style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+            >
+              Edit Profile
+            </button>
+          ) : (
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              <span className="rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent)' }}>
+                Album art
+              </span>
+              <span className="rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-muted)' }}>
+                Custom covers
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="group relative shrink-0 sm:ml-auto">
@@ -311,23 +360,27 @@ export default function Profile() {
               />
             ) : (
               <div 
-                className="flex h-full w-full cursor-pointer items-center justify-center"
-                onClick={() => setShowSettings(true)}
+                className={`flex h-full w-full items-center justify-center ${editMode ? 'cursor-pointer' : ''}`}
+                onClick={editMode ? () => setShowSettings(true) : undefined}
               >
                 <div className="text-center">
                   <IconUpload size={20} style={{ color: 'var(--text-muted)' }} className="mx-auto" />
-                  <p className="mt-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>Add cover photo</p>
+                  <p className="mt-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                    {editMode ? 'Add cover photo' : 'No cover photo'}
+                  </p>
                 </div>
               </div>
             )}
-            <button 
-              onClick={() => setShowSettings(true)} 
-              className="absolute right-2 top-2 rounded-full p-1.5 opacity-0 transition-all duration-200 hover:scale-110 group-hover:opacity-100" 
-              style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}
-              aria-label="Edit cover"
-            >
-              <IconPen size={12} />
-            </button>
+            {editMode && (
+              <button 
+                onClick={() => setShowSettings(true)} 
+                className="absolute right-2 top-2 rounded-full p-1.5 opacity-100 transition-all duration-200 hover:scale-110"
+                style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)' }}
+                aria-label="Edit cover"
+              >
+                <IconPen size={12} />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -340,14 +393,56 @@ export default function Profile() {
               <span className="ml-2" style={{ color: 'var(--text-faint)' }}>({collection.length})</span>
             )}
           </p>
-          <button 
-            onClick={startNewUpload} 
-            className="flex items-center gap-2 rounded-lg bg-theme-accent px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
-          >
-            <IconUpload size={14} />
-            Create
-          </button>
+          {editMode && (
+            <button 
+              onClick={startNewUpload} 
+              className="flex items-center gap-2 rounded-lg bg-theme-accent px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
+            >
+              <IconUpload size={14} />
+              Create
+            </button>
+          )}
         </div>
+
+        {collection && collection.length > 0 && (
+          <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative w-full sm:max-w-xs">
+              <IconSearch size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search title, artist, tag..."
+                className="field-input !pl-9"
+              />
+            </div>
+            {allTags.length > 0 && (
+              <div className="scroll-thin flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                <button
+                  onClick={() => setActiveTag(null)}
+                  className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                    activeTag === null ? 'border-theme-accent bg-theme-accent text-white' : 'hover:opacity-80'
+                  }`}
+                  style={activeTag !== null ? { borderColor: 'var(--border-primary)', color: 'var(--text-muted)' } : {}}
+                >
+                  All
+                </button>
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setActiveTag((t) => (t === tag ? null : tag))}
+                    className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                      activeTag === tag ? 'border-theme-accent bg-theme-accent text-white' : 'hover:opacity-80'
+                    }`}
+                    style={activeTag !== tag ? { borderColor: 'var(--border-primary)', color: 'var(--text-muted)' } : {}}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {collection === null ? (
           <div className="grid grid-cols-2 gap-4 py-8 sm:grid-cols-3 lg:grid-cols-4">
@@ -365,21 +460,42 @@ export default function Profile() {
             </div>
             <p className="font-display text-lg" style={{ color: 'var(--text-muted)' }}>Nothing here yet.</p>
             <p className="mt-2 text-sm" style={{ color: 'var(--text-faint)' }}>
-              Upload your first cover to get started.
+              {editMode ? 'Upload your first cover to get started.' : 'New work will appear here.'}
             </p>
-            <button 
-              onClick={startNewUpload} 
-              className="mt-6 rounded-lg bg-theme-accent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
+            {editMode && (
+              <button 
+                onClick={startNewUpload} 
+                className="mt-6 rounded-lg bg-theme-accent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
+              >
+                Upload Cover
+              </button>
+            )}
+          </div>
+        ) : filteredCollection.length === 0 ? (
+          <div className="flex flex-col items-center py-20 text-center">
+            <IconSearch size={36} style={{ color: 'var(--text-faint)' }} />
+            <p className="mt-4 font-display text-lg" style={{ color: 'var(--text-muted)' }}>No matches.</p>
+            <p className="mt-2 text-sm" style={{ color: 'var(--text-faint)' }}>
+              Nothing in the collection matches {activeTag ? `tag “${activeTag}”` : 'that search'}.
+            </p>
+            <button
+              onClick={() => { setSearch(''); setActiveTag(null) }}
+              className="mt-6 rounded-lg border px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition-opacity hover:opacity-80"
+              style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
             >
-              Upload Cover
+              Clear filters
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 py-6 sm:grid-cols-3 lg:grid-cols-4">
-            {collection.map((item, i) => (
+            {filteredCollection.map((item, i) => (
               <div 
                 key={item.id} 
-                className="animate-rise group relative overflow-hidden rounded-xl transition-all duration-200 hover:-translate-y-1 hover:shadow-theme-lg" 
+                onClick={editMode ? undefined : () => setViewItem(item)}
+                role={editMode ? undefined : 'button'}
+                tabIndex={editMode ? undefined : 0}
+                onKeyDown={editMode ? undefined : (e) => { if (e.key === 'Enter') setViewItem(item) }}
+                className={`animate-rise group relative overflow-hidden rounded-xl transition-all duration-200 hover:-translate-y-1 hover:shadow-theme-lg ${editMode ? '' : 'cursor-pointer'}`}
                 style={{ 
                   animationDelay: `${i * 60}ms`,
                   backgroundColor: 'var(--bg-card)',
@@ -399,18 +515,22 @@ export default function Profile() {
                     >
                       <IconEye size={16} />
                     </button>
-                    <button 
-                      onClick={() => startEditItem(item)} 
-                      className="rounded-full bg-white/90 p-2.5 text-symbiote-900 transition-transform hover:scale-110"
-                    >
-                      <IconPen size={16} />
-                    </button>
-                    <button 
-                      onClick={() => setConfirmDelete(item.id)} 
-                      className={`rounded-full p-2.5 transition-all ${confirmDelete === item.id ? 'bg-venom-500 text-white' : 'bg-white/90 text-symbiote-900 hover:bg-venom-500 hover:text-white'}`}
-                    >
-                      <IconTrash size={16} />
-                    </button>
+                    {editMode && (
+                      <button 
+                        onClick={() => startEditItem(item)} 
+                        className="rounded-full bg-white/90 p-2.5 text-symbiote-900 transition-transform hover:scale-110"
+                      >
+                        <IconPen size={16} />
+                      </button>
+                    )}
+                    {editMode && (
+                      <button 
+                        onClick={() => setConfirmDelete(item.id)} 
+                        className={`rounded-full p-2.5 transition-all ${confirmDelete === item.id ? 'bg-venom-500 text-white' : 'bg-white/90 text-symbiote-900 hover:bg-venom-500 hover:text-white'}`}
+                      >
+                        <IconTrash size={16} />
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="p-3">
@@ -450,13 +570,15 @@ export default function Profile() {
               <span className="ml-2" style={{ color: 'var(--text-faint)' }}>({albums.length})</span>
             )}
           </p>
-          <button 
-            onClick={() => { setEditingAlbum(null); setShowAlbumUpload(true) }}
-            className="flex items-center gap-2 rounded-lg bg-theme-accent px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
-          >
-            <IconUpload size={14} />
-            Create Album
-          </button>
+          {editMode && (
+            <button 
+              onClick={() => { setEditingAlbum(null); setShowAlbumUpload(true) }}
+              className="flex items-center gap-2 rounded-lg bg-theme-accent px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
+            >
+              <IconUpload size={14} />
+              Create Album
+            </button>
+          )}
         </div>
 
         {albums === null ? (
@@ -475,21 +597,27 @@ export default function Profile() {
             </div>
             <p className="font-display text-lg" style={{ color: 'var(--text-muted)' }}>No albums yet.</p>
             <p className="mt-2 text-sm" style={{ color: 'var(--text-faint)' }}>
-              Create your first album to organize multiple covers.
+              {editMode ? 'Create your first album to organize multiple covers.' : 'Albums will appear here.'}
             </p>
-            <button 
-              onClick={() => { setEditingAlbum(null); setShowAlbumUpload(true) }}
-              className="mt-6 rounded-lg bg-theme-accent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
-            >
-              Create Album
-            </button>
+            {editMode && (
+              <button 
+                onClick={() => { setEditingAlbum(null); setShowAlbumUpload(true) }}
+                className="mt-6 rounded-lg bg-theme-accent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-theme-accent-hover"
+              >
+                Create Album
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 py-6 sm:grid-cols-2 lg:grid-cols-3">
             {albums.map((album, i) => (
               <div 
                 key={album.id} 
-                className="animate-rise group overflow-hidden rounded-xl transition-all duration-200 hover:-translate-y-1 hover:shadow-theme-lg" 
+                onClick={editMode ? undefined : () => setViewAlbum(album)}
+                role={editMode ? undefined : 'button'}
+                tabIndex={editMode ? undefined : 0}
+                onKeyDown={editMode ? undefined : (e) => { if (e.key === 'Enter') setViewAlbum(album) }}
+                className={`animate-rise group overflow-hidden rounded-xl transition-all duration-200 hover:-translate-y-1 hover:shadow-theme-lg ${editMode ? '' : 'cursor-pointer'}`}
                 style={{ 
                   animationDelay: `${i * 60}ms`,
                   backgroundColor: 'var(--bg-card)',
@@ -514,18 +642,22 @@ export default function Profile() {
                     >
                       <IconEye size={16} />
                     </button>
-                    <button 
-                      onClick={() => { setEditingAlbum(album); setShowAlbumUpload(true) }}
-                      className="rounded-full bg-white/90 p-2.5 text-symbiote-900 transition-transform hover:scale-110"
-                    >
-                      <IconPen size={16} />
-                    </button>
-                    <button 
-                      onClick={() => setConfirmDeleteAlbum(album.id)} 
-                      className={`rounded-full p-2.5 transition-all ${confirmDeleteAlbum === album.id ? 'bg-venom-500 text-white' : 'bg-white/90 text-symbiote-900 hover:bg-venom-500 hover:text-white'}`}
-                    >
-                      <IconTrash size={16} />
-                    </button>
+                    {editMode && (
+                      <button 
+                        onClick={() => { setEditingAlbum(album); setShowAlbumUpload(true) }}
+                        className="rounded-full bg-white/90 p-2.5 text-symbiote-900 transition-transform hover:scale-110"
+                      >
+                        <IconPen size={16} />
+                      </button>
+                    )}
+                    {editMode && (
+                      <button 
+                        onClick={() => setConfirmDeleteAlbum(album.id)} 
+                        className={`rounded-full p-2.5 transition-all ${confirmDeleteAlbum === album.id ? 'bg-venom-500 text-white' : 'bg-white/90 text-symbiote-900 hover:bg-venom-500 hover:text-white'}`}
+                      >
+                        <IconTrash size={16} />
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="p-3">
@@ -636,22 +768,24 @@ export default function Profile() {
                 <span>Added {new Date(viewItem.createdAt).toLocaleDateString()}</span>
               </div>
 
-              <div className="flex gap-2 pt-2">
-                <button
-                  onClick={() => { startEditItem(viewItem); setViewItem(null) }}
-                  className="flex-1 rounded-lg px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors"
-                  style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => { setConfirmDelete(viewItem.id); setViewItem(null) }}
-                  className="flex-1 rounded-lg border px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors hover:bg-venom-500 hover:text-white hover:border-venom-500"
-                  style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
-                >
-                  Delete
-                </button>
-              </div>
+              {editMode && (
+                <div className="flex gap-2 pt-2">
+                  <button
+                    onClick={() => { startEditItem(viewItem); setViewItem(null) }}
+                    className="flex-1 rounded-lg px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors"
+                    style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => { setConfirmDelete(viewItem.id); setViewItem(null) }}
+                    className="flex-1 rounded-lg border px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors hover:bg-venom-500 hover:text-white hover:border-venom-500"
+                    style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -872,22 +1006,24 @@ export default function Profile() {
                 <span>{viewAlbum.images.length} images</span>
               </div>
 
-              <div className="flex gap-2 pt-4">
-                <button
-                  onClick={() => { setEditingAlbum(viewAlbum); setShowAlbumUpload(true); setViewAlbum(null) }}
-                  className="flex-1 rounded-lg px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors"
-                  style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
-                >
-                  Edit Album
-                </button>
-                <button
-                  onClick={() => { setConfirmDeleteAlbum(viewAlbum.id); setViewAlbum(null) }}
-                  className="flex-1 rounded-lg border px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors hover:bg-venom-500 hover:text-white hover:border-venom-500"
-                  style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
-                >
-                  Delete Album
-                </button>
-              </div>
+              {editMode && (
+                <div className="flex gap-2 pt-4">
+                  <button
+                    onClick={() => { setEditingAlbum(viewAlbum); setShowAlbumUpload(true); setViewAlbum(null) }}
+                    className="flex-1 rounded-lg px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors"
+                    style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
+                  >
+                    Edit Album
+                  </button>
+                  <button
+                    onClick={() => { setConfirmDeleteAlbum(viewAlbum.id); setViewAlbum(null) }}
+                    className="flex-1 rounded-lg border px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors hover:bg-venom-500 hover:text-white hover:border-venom-500"
+                    style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+                  >
+                    Delete Album
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

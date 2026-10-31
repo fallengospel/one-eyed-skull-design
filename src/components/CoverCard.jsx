@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { IconEye, IconPen, IconTrash } from './icons.jsx'
+import { useEditMode } from '../context/EditModeContext.jsx'
 
 export default function CoverCard({ cover, index, onView, onEdit, onDelete }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const { editMode } = useEditMode()
 
   const handleDelete = (e) => {
     e.stopPropagation()
@@ -44,25 +46,29 @@ export default function CoverCard({ cover, index, onView, onEdit, onDelete }) {
             >
               <IconEye size={16} />
             </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onEdit(cover) }}
-              className="rounded-full bg-white/90 p-2 text-symbiote-900 backdrop-blur-sm transition-transform hover:scale-110"
-              aria-label="Edit"
-            >
-              <IconPen size={16} />
-            </button>
+            {editMode && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onEdit(cover) }}
+                className="rounded-full bg-white/90 p-2 text-symbiote-900 backdrop-blur-sm transition-transform hover:scale-110"
+                aria-label="Edit"
+              >
+                <IconPen size={16} />
+              </button>
+            )}
           </div>
-          <button
-            onClick={handleDelete}
-            className={`rounded-full p-2 backdrop-blur-sm transition-all ${
-              confirmDelete
-                ? 'bg-venom-500 text-white'
-                : 'bg-white/90 text-symbiote-900 hover:bg-venom-500 hover:text-white'
-            }`}
-            aria-label={confirmDelete ? 'Confirm delete' : 'Delete'}
-          >
-            <IconTrash size={16} />
-          </button>
+          {editMode && (
+            <button
+              onClick={handleDelete}
+              className={`rounded-full p-2 backdrop-blur-sm transition-all ${
+                confirmDelete
+                  ? 'bg-venom-500 text-white'
+                  : 'bg-white/90 text-symbiote-900 hover:bg-venom-500 hover:text-white'
+              }`}
+              aria-label={confirmDelete ? 'Confirm delete' : 'Delete'}
+            >
+              <IconTrash size={16} />
+            </button>
+          )}
         </div>
       </div>
 

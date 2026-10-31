@@ -1,9 +1,12 @@
 import { NavLink } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { useEditMode } from '../context/EditModeContext.jsx'
+import { IconEye, IconPen } from './icons.jsx'
 import SkullLogo from './SkullLogo.jsx'
 
 export default function Nav() {
   const { theme, toggleTheme } = useTheme()
+  const { editMode, toggleEditMode } = useEditMode()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b backdrop-blur-md" style={{ borderColor: 'var(--border-primary)', backgroundColor: 'var(--bg-primary)' }}>
@@ -56,6 +59,18 @@ export default function Nav() {
               </>
             )}
           </NavLink>
+          <button
+            onClick={toggleEditMode}
+            className={`ml-2 flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] transition-all ${
+              editMode ? 'border-theme-accent bg-theme-accent text-white' : 'hover:opacity-80'
+            }`}
+            style={!editMode ? { borderColor: 'var(--border-primary)', color: 'var(--text-muted)' } : {}}
+            aria-pressed={editMode}
+            title={editMode ? 'Editing — click to view the portfolio' : 'Viewing — click to enable edit controls'}
+          >
+            {editMode ? <IconPen size={12} /> : <IconEye size={12} />}
+            <span className="hidden sm:inline">{editMode ? 'Editing' : 'Viewing'}</span>
+          </button>
           <button
             onClick={toggleTheme}
             className="ml-2 flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-theme-bg-alt"

@@ -41,3 +41,36 @@ export function IconMinus(props) {
 export function IconReset(props) {
   return <Icon {...props}><path d="M4 10a8 8 0 1 1 2 6" /><path d="M4 5v5h5" /></Icon>
 }
+
+export function IconGitHub(props) {
+  return (
+    <Icon {...props}>
+      <path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" />
+    </Icon>
+  )
+}
+
+export function IconMail(props) {
+  return (
+    <Icon {...props}>
+      <rect x="2" y="4.5" width="20" height="15" rx="2" />
+      <path d="m2.5 6.5 8.4 5.6a2 2 0 0 0 2.2 0l8.4-5.6" />
+    </Icon>
+  )
+}
+
+export function IconChevronLeft(props) {
+  return <Icon {...props}><path d="M15 18l-6-6 6-6" /></Icon>
+}
+
+export function IconChevronRight(props) {
+  return <Icon {...props}><path d="M9 18l6-6-6-6" /></Icon>
+}
+
+export function IconArrowRight(props) {
+  return <Icon {...props}><path d="M4 12h15" /><path d="M13 6l6 6-6 6" /></Icon>
+}
+
+export function IconHeart(props) {
+  return <Icon {...props}><path d="M12 20s-7-4.6-9.2-9C1.3 8 2.6 4.7 5.9 4.3 8 4 9.4 5.1 12 8c2.6-2.9 4-4 6.1-3.7 3.3.4 4.6 3.7 3.1 6.7C19 15.4 12 20 12 20Z" /></Icon>
+}

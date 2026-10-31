@@ -1,13 +1,24 @@
 import { useState, useEffect, useRef } from 'react'
-import { IconX } from './icons.jsx'
+import { IconX, IconChevronLeft, IconChevronRight } from './icons.jsx'
+import { useEditMode } from '../context/EditModeContext.jsx'
 
-export default function Lightbox({ cover, onClose, onEdit, onDelete }) {
+export default function Lightbox({ cover, items, onNavigate, onClose, onEdit, onDelete }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const panelRef = useRef(null)
+  const { editMode } = useEditMode()
+
+  const list = Array.isArray(items) && items.length > 1 ? items : null
+  const index = list ? list.findIndex((c) => c.id === cover.id) : -1
+  const canPrev = list && index > 0
+  const canNext = list && index >= 0 && index < list.length - 1
+  const goPrev = () => { if (canPrev && onNavigate) onNavigate(list[index - 1]) }
+  const goNext = () => { if (canNext && onNavigate) onNavigate(list[index + 1]) }
 
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') onClose()
+      else if (e.key === 'ArrowLeft') goPrev()
+      else if (e.key === 'ArrowRight') goNext()
     }
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
@@ -15,7 +26,7 @@ export default function Lightbox({ cover, onClose, onEdit, onDelete }) {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
     }
-  }, [onClose])
+  }, [cover.id, canPrev, canNext])
 
   const handleDelete = () => {
     if (!confirmDelete) {
@@ -52,12 +63,37 @@ export default function Lightbox({ cover, onClose, onEdit, onDelete }) {
           <IconX size={18} style={{ color: 'var(--text-secondary)' }} />
         </button>
 
-        <div className="flex-shrink-0 bg-black sm:w-1/2">
+        <div className="relative flex-shrink-0 bg-black sm:w-1/2">
           <img
             src={cover.imageUrl}
             alt={cover.title}
-            className="h-full w-full object-contain"
+            className="h-full max-h-[50vh] w-full object-contain sm:max-h-[90vh]"
           />
+
+          {canPrev && (
+            <button
+              onClick={goPrev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white backdrop-blur-sm transition-all hover:scale-110 hover:bg-black/70 sm:left-3"
+              aria-label="Previous cover"
+            >
+              <IconChevronLeft size={20} />
+            </button>
+          )}
+          {canNext && (
+            <button
+              onClick={goNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white backdrop-blur-sm transition-all hover:scale-110 hover:bg-black/70 sm:right-3"
+              aria-label="Next cover"
+            >
+              <IconChevronRight size={20} />
+            </button>
+          )}
+
+          {list && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-2.5 py-0.5 text-[10px] tabular-nums text-white/80 backdrop-blur-sm">
+              {index + 1} / {list.length}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-5 sm:p-6">
@@ -104,26 +140,28 @@ export default function Lightbox({ cover, onClose, onEdit, onDelete }) {
             <span>Pinned {created.toLocaleDateString()}</span>
           </div>
 
-          <div className="flex gap-2 pt-2">
-            <button
-              onClick={() => { onEdit(cover); onClose() }}
-              className="flex-1 rounded-lg px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors"
-              style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
-            >
-              Edit
-            </button>
-            <button
-              onClick={handleDelete}
-              className={`flex-1 rounded-lg px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors ${
-                confirmDelete
-                  ? 'bg-venom-500 text-white'
-                  : 'border hover:bg-venom-500 hover:text-white hover:border-venom-500'
-              }`}
-              style={!confirmDelete ? { borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' } : {}}
-            >
-              {confirmDelete ? 'Confirm Delete' : 'Delete'}
-            </button>
-          </div>
+          {editMode && onEdit && onDelete && (
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={() => { onEdit(cover); onClose() }}
+                className="flex-1 rounded-lg px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors"
+                style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
+              >
+                Edit
+              </button>
+              <button
+                onClick={handleDelete}
+                className={`flex-1 rounded-lg border px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-colors ${
+                  confirmDelete
+                    ? 'bg-venom-500 text-white'
+                    : 'border hover:bg-venom-500 hover:text-white hover:border-venom-500'
+                }`}
+                style={!confirmDelete ? { borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' } : {}}
+              >
+                {confirmDelete ? 'Confirm Delete' : 'Delete'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
