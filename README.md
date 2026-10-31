@@ -102,6 +102,13 @@ npm run dev
 
 ## Deployment
 
+### Vercel (automatic)
+- Connected to `github.com/fallengospel/one-eyed-skull-design` — every push creates a deployment
+- **Live:** https://one-eyed-skull-design.vercel.app
+- Base path switches automatically: `/` on Vercel, `/one-eyed-skull-design/` on GitHub Pages (`vite.config.js`)
+- Config lives in `vercel.json`
+
+### GitHub Pages (manual)
 ```bash
 # Build
 npm run build
